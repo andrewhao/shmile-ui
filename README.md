@@ -5,3 +5,12 @@ We extracted out the socket-based frontend from
 [shmile](https://github.com/porkbuns/shmile) so we could develop the
 frontend in isolation and decouple from the server.
 
+## Installation
+
+    $ npm install
+    $ bower install
+
+## Tests
+
+    $ npm install -g karma-cli
+
