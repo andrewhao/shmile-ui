@@ -3,7 +3,7 @@ var PhotoView = Backbone.View.extend({
 
   initialize: function(config) {
     this.config = config
-    this.canvas = new Raphael('viewport', this.config.WINDOW_WIDTH, this.config.WINDOW_HEIGHT);
+    this.canvas = new Raphael('viewport', this.config.window_width, this.config.window_height);
     this.frames = this.canvas.set(); // List of SVG black rects
     this.images = this.canvas.set(); // List of SVG images
     this.all = this.canvas.set();
@@ -16,23 +16,23 @@ var PhotoView = Backbone.View.extend({
   },
 
   render: function() {
-    var w = this.config.WINDOW_WIDTH - this.config.PHOTO_MARGIN;
-    var h = this.config.WINDOW_HEIGHT - this.config.PHOTO_MARGIN;
+    var w = this.config.window_width - this.config.photo_margin;
+    var h = this.config.window_height - this.config.photo_margin;
     this.compositeDim = CameraUtils.scale4x6(w, h);
     this.compositeOrigin = {
-        x: (this.config.WINDOW_WIDTH - this.compositeDim.w) / 2,
-        y: (this.config.WINDOW_HEIGHT - this.compositeDim.h) / 2
+        x: (this.config.window_width - this.compositeDim.w) / 2,
+        y: (this.config.window_height - this.compositeDim.h) / 2
     };
     this.compositeCenter = {
         x: this.compositeOrigin.x + (this.compositeDim.w/2),
         y: this.compositeOrigin.y + (this.compositeDim.h/2)
     }
     var r = this.canvas.rect(this.compositeOrigin.x, this.compositeOrigin.y, this.compositeDim.w, this.compositeDim.h);
-    
+
     r.attr({'fill': 'white'});
-    
+
     this.all.push(r);
-    
+
     // Scale the photo padding too
     this.photoBorder = this.compositeDim.w / 50;
 
@@ -51,7 +51,7 @@ var PhotoView = Backbone.View.extend({
     this.frames.push(frame);
     this.all.push(img);
     this.all.push(frame);
-    
+
     frame = frame.clone();
     img = img.clone();
     frame.translate(this.frameDim.w + this.photoBorder, 0);
@@ -60,7 +60,7 @@ var PhotoView = Backbone.View.extend({
     this.images.push(img);
     this.all.push(frame);
     this.all.push(img);
-    
+
     frame = frame.clone();
     img = img.clone();
     frame.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
@@ -69,7 +69,7 @@ var PhotoView = Backbone.View.extend({
     this.images.push(img);
     this.all.push(frame);
     this.all.push(img);
-    
+
     frame = frame.clone();
     img = img.clone();
     frame.translate(this.frameDim.w + this.photoBorder, 0);
@@ -78,7 +78,7 @@ var PhotoView = Backbone.View.extend({
     this.images.push(img);
     this.all.push(frame);
     this.all.push(img);
-    
+
     // Draw the PNG logo overlay.
     var o = this.canvas.image(
         '/images/overlay.png',
@@ -88,10 +88,10 @@ var PhotoView = Backbone.View.extend({
         this.compositeDim.h);
     this.all.push(o);
     this.overlayImage = o;
-    
+
     // Hide everything and move out of sight.
     this.all.hide();
-    this.all.translate(-this.config.WINDOW_WIDTH, 0);
+    this.all.translate(-this.config.window_width, 0);
   },
 
   toString: function() {
@@ -139,11 +139,11 @@ var PhotoView = Backbone.View.extend({
       this.images.hide();
       this.overlayImage.hide();
       this.all.animate({
-        'translation': this.config.WINDOW_WIDTH+",0"
-      }, 1000, "<>", cb);        
+        'translation': this.config.window_width+",0"
+      }, 1000, "<>", cb);
     } else if (dir === 'out') {
       this.all.animate({
-        'translation': this.config.WINDOW_WIDTH+",0"
+        'translation': this.config.window_width+",0"
       }, 1000, "<>", cb);
     }
   },
@@ -165,7 +165,7 @@ var PhotoView = Backbone.View.extend({
   zoomFrame: function(idx, dir, onfinish) {
       var view = this;
       var composite = this.all[idx];
-  
+
       var frame = this.frames[idx];
       var frameX = frame.attr('x');
       var frameW = frame.attr('width');
@@ -173,20 +173,20 @@ var PhotoView = Backbone.View.extend({
       var frameH = frame.attr('height');
       var centerX = frameX + frameW/2;
       var centerY = frameY + frameH/2;
-  
+
       var animSpeed = 700;
-      
+
       // delta to translate to.
       var dx = this.compositeCenter.x - centerX;
       var dy = this.compositeCenter.y - centerY;
       var scaleFactor = this.compositeDim.w / this.frameDim.w;
-          
+
       if (dir === "out" && State.zoomed) {
           scaleFactor = 1;
           dx = -State.zoomed.dx;
           dy = -State.zoomed.dy;
           view.all.animate({
-              'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),        
+              'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),
           }, animSpeed, 'bounce', function() {
               view.all.animate({
                   'translation': dx+','+dy
@@ -210,7 +210,7 @@ var PhotoView = Backbone.View.extend({
           };
       }
   },
-  
+
   /**
    * Reset visibility, location of composite image for next round.
    */
@@ -218,12 +218,12 @@ var PhotoView = Backbone.View.extend({
       this.resetState();
       this.modalMessage('Next!');
       this.all.hide();
-      this.all.translate(-this.config.WINDOW_WIDTH * 2, 0);
+      this.all.translate(-this.config.window_width * 2, 0);
       this.animate('in', function() {
         $('#start-button').fadeIn();
       });
   },
-  
+
   /**
    * Resets the state variables.
    */
@@ -235,13 +235,13 @@ var PhotoView = Backbone.View.extend({
           zoomed: null
       };
   },
-  
+
   /**
    * Faux camera flash
    */
   flashEffect: function(duration) {
     if (duration === undefined) { duration = 200; }
-    var rect = this.canvas.rect(0, 0, this.config.WINDOW_WIDTH, this.config.WINDOW_HEIGHT);
+    var rect = this.canvas.rect(0, 0, this.config.window_width, this.config.window_height);
     rect.attr({'fill': 'white', 'opacity': 0});
     rect.animate({'opacity': 1}, duration, ">", function() {
       rect.animate({'opacity': 0}, duration, "<");
@@ -251,7 +251,7 @@ var PhotoView = Backbone.View.extend({
 
   flashStart: function(duration) {
     if (duration === undefined) { duration = 200; }
-    this.rect = this.canvas.rect(0, 0, this.config.WINDOW_WIDTH, this.config.WINDOW_HEIGHT);
+    this.rect = this.canvas.rect(0, 0, this.config.window_width, this.config.window_height);
     this.rect.attr({'fill': 'white', 'opacity': 0});
     this.rect.animate({'opacity': 1}, duration, ">")
   },
@@ -263,17 +263,17 @@ var PhotoView = Backbone.View.extend({
       self.remove();
     });
   },
-  
+
   /**
    * Draws a modal with some text.
    */
   modalMessage: function(text, persistTime, animateSpeed, cb) {
       if (animateSpeed === undefined) { var animateSpeed = 200; }
       if (persistTime === undefined) { var persistTime = 500; }
-  
-      var sideLength = this.config.WINDOW_HEIGHT * 0.3;
-      var x = (this.config.WINDOW_WIDTH - sideLength)/2;
-      var y = (this.config.WINDOW_HEIGHT - sideLength)/2;
+
+      var sideLength = this.config.window_height * 0.3;
+      var x = (this.config.window_width - sideLength)/2;
+      var y = (this.config.window_height - sideLength)/2;
       var all = this.canvas.set();
       var r = this.canvas.rect(x, y,
           sideLength,
@@ -295,7 +295,7 @@ var PhotoView = Backbone.View.extend({
           'scale': '1.5,1.5',
           'font-size': '70'
       }, animateSpeed, '>');
-      
+
       // Timer to delete self nodes.
       var t = setTimeout(function(all) {
           // Delete nodes
@@ -304,7 +304,7 @@ var PhotoView = Backbone.View.extend({
           if (cb) cb();
       }, persistTime, all);
   },
-  
+
   /**
    * Applies the final image overlay to the composite image.
    * This will usually contain the wedding logo: 24-bit transparent PNG
@@ -313,7 +313,7 @@ var PhotoView = Backbone.View.extend({
       this.overlayImage.show();
       if (animate) {
           //this.overlayImage.attr({'opacity':0});
-        this.overlayImage.animate({'opacity':1}, this.config.OVERLAY_DELAY);
+        this.overlayImage.animate({'opacity':1}, this.config.overlay_delay);
       }
   },
 
@@ -323,7 +323,7 @@ var PhotoView = Backbone.View.extend({
   hideOverlay: function(animate) {
     var view = this;
     if (animate) {
-      this.overlayImage.animate({'opacity':0}, this.config.OVERLAY_DELAY, function() {
+      this.overlayImage.animate({'opacity':0}, this.config.overlay_delay, function() {
         view.overlayImage.hide();
       });
     } else {
