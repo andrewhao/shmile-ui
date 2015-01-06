@@ -1,7 +1,7 @@
 /**
  * A class of utility methods.
  */
-function CameraUtils() {};
+ var CameraUtils = function() {};
 
 /**
  * Play the snap effect.

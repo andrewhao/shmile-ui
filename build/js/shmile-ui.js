@@ -1,7 +1,7 @@
 /**
  * A class of utility methods.
  */
-function CameraUtils() {};
+ var CameraUtils = function() {};
 
 /**
  * Play the snap effect.
@@ -62,13 +62,17 @@ var Config = {
   is_mobile: false
 }
 
-// Current app state.
-var State = {
-  photoset: [],
-  set_id: null,
-  current_frame_idx: 0,
-  zoomed: null
+/**
+ * Describes the current state of the UI.
+ */
+var AppState = function() {
+  this.reset();
 };
+
+AppState.prototype.reset = function() {
+  this.current_frame_idx = 0;
+  this.zoomed = null;
+}
 
 
 /*
@@ -88,20 +92,20 @@ var State = {
  *   - finish_set() -> ready
  *
  * @param [PhotoView]
- * @param [Socket] The initialized Socket
- * @param [State]
- * @param [Config]
+ * @param [Socket]            The initialized Socket
+ * @param [AppState] appState Global initialized state
+ * @param [Config] config     The configuration options passed to the app
  */
-ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
+var ShmileStateMachine = function(photoView, socket, appState, config, buttonView) {
   this.photoView = photoView;
   this.socket = socket;
-  this.State = State;
-  this.Config = Config;
+  this.appState = appState;
+  this.config = config;
   this.buttonView = buttonView
 
   var self = this;
 
-  return StateMachine.create({
+  this.fsm = StateMachine.create({
     initial: 'loading',
     events: [
       { name: 'connected', from: 'loading', to: 'ready' },
@@ -125,43 +129,45 @@ ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
       },
       onenterwaiting_for_photo: function(e) {
         cheeseCb = function() {
-          self.photoView.modalMessage('Cheese!', Config.cheese_delay);
+          self.photoView.modalMessage('Cheese!', self.config.cheese_delay);
           self.photoView.flashStart();
           self.socket.emit('snap', true);
         }
-        CameraUtils.snap(self.State.current_frame_idx, cheeseCb);
+        CameraUtils.snap(self.appState.current_frame_idx, cheeseCb);
       },
       onphoto_saved: function(e, f, t, data) {
         // update UI
         // By the time we get here, the idx has already been updated!!
         self.photoView.flashEnd();
-        self.photoView.updatePhotoSet(data.web_url, self.State.current_frame_idx, function() {
+        self.photoView.updatePhotoSet(data.web_url, self.appState.current_frame_idx, function() {
           setTimeout(function() {
-            fsm.photo_updated();
-          }, Config.between_snap_delay)
+            self.fsm.photo_updated();
+          }, self.config.between_snap_delay)
         });
       },
       onphoto_updated: function(e, f, t) {
         self.photoView.flashEnd();
         // We're done with the full set.
-        if (self.State.current_frame_idx == 3) {
-          fsm.finish_set();
+        if (self.appState.current_frame_idx == 3) {
+          self.fsm.finish_set();
         }
         // Move the frame index up to the next frame to update.
         else {
-          self.State.current_frame_idx = (self.State.current_frame_idx + 1) % 4
-          fsm.continue_partial_set();
+          self.appState.current_frame_idx = (self.appState.current_frame_idx + 1) % 4
+          self.fsm.continue_partial_set();
         }
       },
       onenterreview_composited: function(e, f, t) {
         self.socket.emit('composite');
         self.photoView.showOverlay(true);
-        setTimeout(function() { fsm.next_set() }, Config.next_delay);
+        setTimeout(function() {
+          self.fsm.next_set()
+        }, self.config.next_delay);
       },
       onleavereview_composited: function(e, f, t) {
         // Clean up
         self.photoView.animate('out');
-        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {
+        self.photoView.modalMessage('Nice!', self.config.nice_delay, 200, function() {
           self.photoView.slideInNext();
         });
       },
@@ -261,8 +267,8 @@ SocketLayer.prototype.register = function(fsm) {
 var PhotoView = Backbone.View.extend({
   id: "#viewport",
 
-  initialize: function(config) {
-    this.config = config
+  initialize: function(config, state) {
+    this.config = config;
     this.canvas = new Raphael('viewport', this.config.window_width, this.config.window_height);
     this.frames = this.canvas.set(); // List of SVG black rects
     this.images = this.canvas.set(); // List of SVG images
@@ -273,6 +279,7 @@ var PhotoView = Backbone.View.extend({
     this.frameDim = null;
     this.compositeOrigin = null;
     this.compositeCenter = null;
+    this.state = state;
   },
 
   render: function() {
@@ -420,7 +427,7 @@ var PhotoView = Backbone.View.extend({
    * @param onfinish
    *   Callback executed when the animation is finished.
    *
-   * Depends on the presence of the State.zoomed object to store zoom info.
+   * Depends on the presence of the .zoomed object to store zoom info.
    */
   zoomFrame: function(idx, dir, onfinish) {
       var view = this;
@@ -441,10 +448,10 @@ var PhotoView = Backbone.View.extend({
       var dy = this.compositeCenter.y - centerY;
       var scaleFactor = this.compositeDim.w / this.frameDim.w;
 
-      if (dir === "out" && State.zoomed) {
+      if (dir === "out" && this.state.zoomed) {
           scaleFactor = 1;
-          dx = -State.zoomed.dx;
-          dy = -State.zoomed.dy;
+          dx = -this.state.zoomed.dx;
+          dy = -this.state.zoomed.dy;
           view.all.animate({
               'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),
           }, animSpeed, 'bounce', function() {
@@ -453,7 +460,7 @@ var PhotoView = Backbone.View.extend({
               }, animSpeed, '<>', onfinish)
           });
           // Clear the zoom data.
-          State.zoomed = null;
+          this.state.zoomed = null;
       } else if (dir !== "out") {
           view.all.animate({
               'translation': dx+','+dy
@@ -463,7 +470,7 @@ var PhotoView = Backbone.View.extend({
               }, animSpeed, 'bounce', onfinish)
           });
           // Store the zoom data for next zoom.
-          State.zoomed = {
+          this.state.zoomed = {
               dx: dx,
               dy: dy,
               scaleFactor: scaleFactor
@@ -488,12 +495,7 @@ var PhotoView = Backbone.View.extend({
    * Resets the state variables.
    */
   resetState: function () {
-      State = {
-          photoset: [],
-          set_id: null,
-          current_frame_idx: 0,
-          zoomed: null
-      };
+    this.state.reset();
   },
 
   /**
@@ -629,19 +631,20 @@ ButtonView.prototype.fadeIn = function() {
 // Everything required to set up the app.
 $(window).ready(function() {
   var socketProxy = new SocketProxy();
+  var appState = new AppState();
 
   window.io = window.io || undefined;
 
-  window.p = new PhotoView(window.Config);
+  window.p = new PhotoView(window.Config, appState);
   bv = new ButtonView();
 
-  window.fsm = new ShmileStateMachine(window.p, socketProxy, window.State, window.Config, bv)
+  var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv)
 
-  bv.fsm = window.fsm
+  bv.fsm = ssm.fsm
 
   var layer = new SocketLayer(window.io, socketProxy)
   layer.init();
-  layer.register(fsm);
+  layer.register(ssm.fsm);
 
   window.socketProxy = socketProxy
 

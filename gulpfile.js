@@ -9,7 +9,7 @@ var paths = {
   scripts: [
     'ui/cameraUtils.js',
     'ui/config.js',
-    'ui/state.js',
+    'ui/appState.js',
     'ui/shmileStateMachine.js',
     'ui/cameraUtils.js',
     'ui/socketProxy.js',
