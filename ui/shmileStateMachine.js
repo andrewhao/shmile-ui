@@ -14,13 +14,20 @@
  * + next_photo
  *   - continue_partial_set() -> waiting_for_photo
  *   - finish_set() -> ready
+ *
+ * @param [PhotoView]
+ * @param [Socket] The initialized Socket
+ * @param [State]
+ * @param [Config]
  */
-ShmileStateMachine = function(photoView, socket, State, Config) {
+ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
+  this.photoView = photoView;
+  this.socket = socket;
+  this.State = State;
+  this.Config = Config;
+  this.buttonView = buttonView
+
   var self = this;
-  self.photoView = photoView;
-  self.socket = socket;
-  self.State = State;
-  self.Config = Config;
 
   return StateMachine.create({
     initial: 'loading',
@@ -36,7 +43,7 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
     callbacks: {
       onconnected: function() {
         self.photoView.animate('in', function() {
-          startButton.fadeIn();
+          self.buttonView.fadeIn();
         });
       },
       onenterready: function() {
@@ -48,7 +55,7 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
         cheeseCb = function() {
           self.photoView.modalMessage('Cheese!', Config.cheese_delay);
           self.photoView.flashStart();
-          socket.emit('snap', true);
+          self.socket.emit('snap', true);
         }
         CameraUtils.snap(self.State.current_frame_idx, cheeseCb);
       },
@@ -75,17 +82,19 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
         }
       },
       onenterreview_composited: function(e, f, t) {
-        socket.emit('composite');
+        self.socket.emit('composite');
         self.photoView.showOverlay(true);
         setTimeout(function() { fsm.next_set() }, Config.next_delay);
       },
       onleavereview_composited: function(e, f, t) {
         // Clean up
         self.photoView.animate('out');
-        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {self.photoView.slideInNext()});
+        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {
+          self.photoView.slideInNext();
+        });
       },
       onchangestate: function(e, f, t) {
-        console.log('fsm received event '+e+', changing state from ' + f + ' to ' + t)
+        console.log('fsm received event '+ e +', changing state from ' + f + ' to ' + t)
       }
     }
   });
