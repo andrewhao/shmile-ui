@@ -10,15 +10,15 @@ $(window).ready(function() {
 
   // init code
   startButton = $('button#start-button');
-  var buttonX = (Config.WINDOW_WIDTH - startButton.outerWidth())/2;
-  var buttonY = (Config.WINDOW_HEIGHT - startButton.outerHeight())/2;
-  
+  var buttonX = (Config.window_width - startButton.outerWidth())/2;
+  var buttonY = (Config.window_height - startButton.outerHeight())/2;
+
   startButton.hide();
-  
+
   // Position the start button in the center
   startButton.css({'top': buttonY, 'left': buttonX});
 
-  var buttonTriggerEvt = Config.IS_MOBILE ? "touchend" : "click";
+  var buttonTriggerEvt = Config.is_mobile ? "touchend" : "click";
 
   startButton.bind(buttonTriggerEvt, function(e) {
     var button = $(e.currentTarget);
@@ -99,7 +99,7 @@ var fsm = StateMachine.create({
     },
     onenterwaiting_for_photo: function(e) {
       cheeseCb = function() {
-        p.modalMessage('Cheese!', Config.CHEESE_DELAY);
+        p.modalMessage('Cheese!', Config.cheese_delay);
         p.flashStart();
         socket.emit('snap', true);
       }
@@ -112,7 +112,7 @@ var fsm = StateMachine.create({
       p.updatePhotoSet(data.web_url, State.current_frame_idx, function() {
         setTimeout(function() {
           fsm.photo_updated();
-        }, Config.BETWEEN_SNAP_DELAY)
+        }, Config.between_snap_delay)
       });
     },
     onphoto_updated: function(e, f, t) {
@@ -130,12 +130,12 @@ var fsm = StateMachine.create({
     onenterreview_composited: function(e, f, t) {
       socket.emit('composite');
       p.showOverlay(true);
-      setTimeout(function() { fsm.next_set() }, Config.NEXT_DELAY);
+      setTimeout(function() { fsm.next_set() }, Config.next_delay);
     },
     onleavereview_composited: function(e, f, t) {
       // Clean up
       p.animate('out');
-      p.modalMessage('Nice!', Config.NICE_DELAY, 200, function() {p.slideInNext()});
+      p.modalMessage('Nice!', Config.nice_delay, 200, function() {p.slideInNext()});
     },
     onchangestate: function(e, f, t) {
       console.log('fsm received event '+e+', changing state from ' + f + ' to ' + t)

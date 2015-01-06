@@ -14,7 +14,7 @@ function CameraUtils() {};
 CameraUtils.snap = function(idx, cheeseCb) {
   p.zoomFrame(idx, 'in');
   // These guys need to be promises.
-  p.modalMessage('Ready?', Config.READY_DELAY, 200, function() {
+  p.modalMessage('Ready?', Config.ready_delay, 200, function() {
     p.modalMessage("3", 1000, 200, function() {
       p.modalMessage("2", 1000, 200,  function() {
         p.modalMessage("1", 1000, 200, function() {
@@ -32,7 +32,7 @@ CameraUtils.snap = function(idx, cheeseCb) {
 CameraUtils.scale4x6 = function(maxw, maxh) {
     var s0 = 6/4; // width / height
     var s1 = maxw/maxh;
-    
+
     // Then the width is longer. Use the shorter side (height)
     if (s0 <= s1) {
         return {w: maxh * 6/4, h: maxh};
