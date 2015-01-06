@@ -86,13 +86,20 @@ var State = {
  * + next_photo
  *   - continue_partial_set() -> waiting_for_photo
  *   - finish_set() -> ready
+ *
+ * @param [PhotoView]
+ * @param [Socket] The initialized Socket
+ * @param [State]
+ * @param [Config]
  */
-ShmileStateMachine = function(photoView, socket, State, Config) {
+ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
+  this.photoView = photoView;
+  this.socket = socket;
+  this.State = State;
+  this.Config = Config;
+  this.buttonView = buttonView
+
   var self = this;
-  self.photoView = photoView;
-  self.socket = socket;
-  self.State = State;
-  self.Config = Config;
 
   return StateMachine.create({
     initial: 'loading',
@@ -108,7 +115,7 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
     callbacks: {
       onconnected: function() {
         self.photoView.animate('in', function() {
-          startButton.fadeIn();
+          self.buttonView.fadeIn();
         });
       },
       onenterready: function() {
@@ -120,7 +127,7 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
         cheeseCb = function() {
           self.photoView.modalMessage('Cheese!', Config.cheese_delay);
           self.photoView.flashStart();
-          socket.emit('snap', true);
+          self.socket.emit('snap', true);
         }
         CameraUtils.snap(self.State.current_frame_idx, cheeseCb);
       },
@@ -147,49 +154,106 @@ ShmileStateMachine = function(photoView, socket, State, Config) {
         }
       },
       onenterreview_composited: function(e, f, t) {
-        socket.emit('composite');
+        self.socket.emit('composite');
         self.photoView.showOverlay(true);
         setTimeout(function() { fsm.next_set() }, Config.next_delay);
       },
       onleavereview_composited: function(e, f, t) {
         // Clean up
         self.photoView.animate('out');
-        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {self.photoView.slideInNext()});
+        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {
+          self.photoView.slideInNext();
+        });
       },
       onchangestate: function(e, f, t) {
-        console.log('fsm received event '+e+', changing state from ' + f + ' to ' + t)
+        console.log('fsm received event '+ e +', changing state from ' + f + ' to ' + t)
       }
     }
   });
 }
 
-// Repsonsible for initializing the connection to socket.io.
-// @param io [Socket]
-// @param fsm [StateMachine]
-var SocketLayer = function(io, fsm) {
-  this.socket = io.connect("/");
-  this.fsm = fsm;
+/**
+ * Proxy object that allows the late initialization of the socket, if one
+ * exists at all. In instances where we never initialize the socket, we allow
+ * for a fake Socket object using a Backbone Event channel.
+ */
+var SocketProxy = function() {
+  this.socket = null;
+  this.fakeSocket = {};
+  _.extend(this.fakeSocket, Backbone.Events)
 }
 
-// Register bindings and callbacks.
-SocketLayer.prototype.register = function() {
+SocketProxy.prototype.lateInitialize = function(socket) {
+  this.socket = socket;
+}
+
+SocketProxy.prototype.on = function(evt, cb) {
+  if (this.socket === null) {
+    console.log("SocketProxy 'on' delegating to fakeSocket")
+    this.fakeSocket.on(evt, cb)
+    return
+  }
+  this.socket.on(evt, cb);
+}
+
+SocketProxy.prototype.emit = function(msg, data) {
+  if (this.socket === null) {
+    console.log("SocketProxy 'emit' delegating to fakeSocket")
+    this.fakeSocket.trigger(msg, function() {
+      console.log(data)
+    });
+    return
+  }
+  this.socket.emit(msg, data);
+}
+
+/**
+ * Responsible for initializing the connection to socket.io.
+ * @param io [Socket]
+ * @param fsm [StateMachine]
+ */
+var SocketLayer = function(io, proxy) {
+  this.io = io;
+  this.proxy = proxy;
+}
+
+/**
+ * Attempt a connection to socket.io server.
+ * If this fails, will no-op and silently continue.
+ */
+SocketLayer.prototype.init = function() {
+  try {
+    this.socket = this.io.connect("/");
+    this.proxy.lateInitialize(this.socket);
+  } catch(e) {
+    console.log("Error initializing socket connection: " + e);
+  }
+  return this;
+}
+
+/**
+ * Register bindings and callbacks.
+ */
+SocketLayer.prototype.register = function(fsm) {
+  this.fsm = fsm;
   var self = this;
-  this.socket.on('message', function(data) {
-    console.log('data is' + data);
+
+  this.proxy.on('message', function(data) {
+    console.log('message evt: data is:' + data);
   });
 
-  this.socket.on('connect', function() {
+  this.proxy.on('connect', function() {
     console.log('connected evt');
     self.fsm.connected();
   });
 
-  this.socket.on('camera_snapped', function() {
+  this.proxy.on('camera_snapped', function() {
     console.log('camera_snapped evt');
     //fsm.camera_snapped();
   })
 
-  this.socket.on('photo_saved', function(data) {
-    console.log('photo_saved evt: '+data.filename);
+  this.proxy.on('photo_saved', function(data) {
+    console.log('photo_saved evt: ' + data.filename);
     self.fsm.photo_saved(data);
   });
 }
@@ -528,21 +592,25 @@ var PhotoView = Backbone.View.extend({
   }
 });
 
-var ButtonView = function() {}
-ButtonView.prototype.render = function() {
-  // init code
-  startButton = $('button#start-button');
-  var buttonX = (Config.window_width - startButton.outerWidth())/2;
-  var buttonY = (Config.window_height - startButton.outerHeight())/2;
+var ButtonView = function(fsm) {
+  this.fsm = fsm;
+}
 
-  startButton.hide();
+ButtonView.prototype.render = function() {
+  var self = this;
+  // init code
+  this.startButton = $('button#start-button');
+  var buttonX = (Config.window_width - this.startButton.outerWidth())/2;
+  var buttonY = (Config.window_height - this.startButton.outerHeight())/2;
+
+  this.startButton.hide();
 
   // Position the start button in the center
-  startButton.css({'top': buttonY, 'left': buttonX});
+  this.startButton.css({'top': buttonY, 'left': buttonX});
 
   var buttonTriggerEvt = Config.is_mobile ? "touchend" : "click";
 
-  startButton.bind(buttonTriggerEvt, function(e) {
+  this.startButton.bind(buttonTriggerEvt, function(e) {
     var button = $(e.currentTarget);
     button.fadeOut(1000);
     $(document).trigger('ui_button_pressed');
@@ -550,27 +618,33 @@ ButtonView.prototype.render = function() {
 
   $(document).bind('ui_button_pressed', function() {
     console.log('ui_button_pressed evt');
-    fsm.ui_button_pressed();
+    self.fsm.ui_button_pressed();
   });
 }
+ButtonView.prototype.fadeIn = function() {
+  this.startButton.fadeIn();
+}
+
 
 // Everything required to set up the app.
 $(window).ready(function() {
+  var socketProxy = new SocketProxy();
 
-  var mockSocket = $('<div id="mockSocket">');
-  $('body').append(mockSocket);
-
-  window.socket = (typeof socket === "undefined") ? mockSocket : window.socket
-  window.io = window.io || {
-    connect: function() { return window.socket; }
-  }; // maybe a mockIo?
+  window.io = window.io || undefined;
 
   window.p = new PhotoView(window.Config);
-  window.fsm = new ShmileStateMachine(window.p, window.socket, window.State, window.Config)
-  var layer = new SocketLayer(io, window.fsm);
-  layer.register();
-
   bv = new ButtonView();
+
+  window.fsm = new ShmileStateMachine(window.p, socketProxy, window.State, window.Config, bv)
+
+  bv.fsm = window.fsm
+
+  var layer = new SocketLayer(window.io, socketProxy)
+  layer.init();
+  layer.register(fsm);
+
+  window.socketProxy = socketProxy
+
   bv.render();
   p.render();
 });

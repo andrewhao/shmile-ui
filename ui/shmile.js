@@ -1,20 +1,23 @@
+
 // Everything required to set up the app.
 $(window).ready(function() {
+  var socketProxy = new SocketProxy();
 
-  var mockSocket = $('<div id="mockSocket">');
-  $('body').append(mockSocket);
-
-  window.socket = (typeof socket === "undefined") ? mockSocket : window.socket
-  window.io = window.io || {
-    connect: function() { return window.socket; }
-  }; // maybe a mockIo?
+  window.io = window.io || undefined;
 
   window.p = new PhotoView(window.Config);
-  window.fsm = new ShmileStateMachine(window.p, window.socket, window.State, window.Config)
-  var layer = new SocketLayer(io, window.fsm);
-  layer.register();
-
   bv = new ButtonView();
+
+  window.fsm = new ShmileStateMachine(window.p, socketProxy, window.State, window.Config, bv)
+
+  bv.fsm = window.fsm
+
+  var layer = new SocketLayer(window.io, socketProxy)
+  layer.init();
+  layer.register(fsm);
+
+  window.socketProxy = socketProxy
+
   bv.render();
   p.render();
 });
