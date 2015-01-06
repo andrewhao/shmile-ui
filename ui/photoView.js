@@ -1,8 +1,8 @@
 var PhotoView = Backbone.View.extend({
   id: "#viewport",
 
-  initialize: function(config) {
-    this.config = config
+  initialize: function(config, state) {
+    this.config = config;
     this.canvas = new Raphael('viewport', this.config.window_width, this.config.window_height);
     this.frames = this.canvas.set(); // List of SVG black rects
     this.images = this.canvas.set(); // List of SVG images
@@ -13,6 +13,7 @@ var PhotoView = Backbone.View.extend({
     this.frameDim = null;
     this.compositeOrigin = null;
     this.compositeCenter = null;
+    this.state = state;
   },
 
   render: function() {
@@ -160,7 +161,7 @@ var PhotoView = Backbone.View.extend({
    * @param onfinish
    *   Callback executed when the animation is finished.
    *
-   * Depends on the presence of the State.zoomed object to store zoom info.
+   * Depends on the presence of the .zoomed object to store zoom info.
    */
   zoomFrame: function(idx, dir, onfinish) {
       var view = this;
@@ -181,10 +182,10 @@ var PhotoView = Backbone.View.extend({
       var dy = this.compositeCenter.y - centerY;
       var scaleFactor = this.compositeDim.w / this.frameDim.w;
 
-      if (dir === "out" && State.zoomed) {
+      if (dir === "out" && this.state.zoomed) {
           scaleFactor = 1;
-          dx = -State.zoomed.dx;
-          dy = -State.zoomed.dy;
+          dx = -this.state.zoomed.dx;
+          dy = -this.state.zoomed.dy;
           view.all.animate({
               'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),
           }, animSpeed, 'bounce', function() {
@@ -193,7 +194,7 @@ var PhotoView = Backbone.View.extend({
               }, animSpeed, '<>', onfinish)
           });
           // Clear the zoom data.
-          State.zoomed = null;
+          this.state.zoomed = null;
       } else if (dir !== "out") {
           view.all.animate({
               'translation': dx+','+dy
@@ -203,7 +204,7 @@ var PhotoView = Backbone.View.extend({
               }, animSpeed, 'bounce', onfinish)
           });
           // Store the zoom data for next zoom.
-          State.zoomed = {
+          this.state.zoomed = {
               dx: dx,
               dy: dy,
               scaleFactor: scaleFactor
@@ -228,12 +229,7 @@ var PhotoView = Backbone.View.extend({
    * Resets the state variables.
    */
   resetState: function () {
-      State = {
-          photoset: [],
-          set_id: null,
-          current_frame_idx: 0,
-          zoomed: null
-      };
+    this.state.reset();
   },
 
   /**

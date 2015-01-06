@@ -16,20 +16,20 @@
  *   - finish_set() -> ready
  *
  * @param [PhotoView]
- * @param [Socket] The initialized Socket
- * @param [State]
- * @param [Config]
+ * @param [Socket]            The initialized Socket
+ * @param [AppState] appState Global initialized state
+ * @param [Config] config     The configuration options passed to the app
  */
-ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
+var ShmileStateMachine = function(photoView, socket, appState, config, buttonView) {
   this.photoView = photoView;
   this.socket = socket;
-  this.State = State;
-  this.Config = Config;
+  this.appState = appState;
+  this.config = config;
   this.buttonView = buttonView
 
   var self = this;
 
-  return StateMachine.create({
+  this.fsm = StateMachine.create({
     initial: 'loading',
     events: [
       { name: 'connected', from: 'loading', to: 'ready' },
@@ -53,43 +53,45 @@ ShmileStateMachine = function(photoView, socket, State, Config, buttonView) {
       },
       onenterwaiting_for_photo: function(e) {
         cheeseCb = function() {
-          self.photoView.modalMessage('Cheese!', Config.cheese_delay);
+          self.photoView.modalMessage('Cheese!', self.config.cheese_delay);
           self.photoView.flashStart();
           self.socket.emit('snap', true);
         }
-        CameraUtils.snap(self.State.current_frame_idx, cheeseCb);
+        CameraUtils.snap(self.appState.current_frame_idx, cheeseCb);
       },
       onphoto_saved: function(e, f, t, data) {
         // update UI
         // By the time we get here, the idx has already been updated!!
         self.photoView.flashEnd();
-        self.photoView.updatePhotoSet(data.web_url, self.State.current_frame_idx, function() {
+        self.photoView.updatePhotoSet(data.web_url, self.appState.current_frame_idx, function() {
           setTimeout(function() {
-            fsm.photo_updated();
-          }, Config.between_snap_delay)
+            self.fsm.photo_updated();
+          }, self.config.between_snap_delay)
         });
       },
       onphoto_updated: function(e, f, t) {
         self.photoView.flashEnd();
         // We're done with the full set.
-        if (self.State.current_frame_idx == 3) {
-          fsm.finish_set();
+        if (self.appState.current_frame_idx == 3) {
+          self.fsm.finish_set();
         }
         // Move the frame index up to the next frame to update.
         else {
-          self.State.current_frame_idx = (self.State.current_frame_idx + 1) % 4
-          fsm.continue_partial_set();
+          self.appState.current_frame_idx = (self.appState.current_frame_idx + 1) % 4
+          self.fsm.continue_partial_set();
         }
       },
       onenterreview_composited: function(e, f, t) {
         self.socket.emit('composite');
         self.photoView.showOverlay(true);
-        setTimeout(function() { fsm.next_set() }, Config.next_delay);
+        setTimeout(function() {
+          self.fsm.next_set()
+        }, self.config.next_delay);
       },
       onleavereview_composited: function(e, f, t) {
         // Clean up
         self.photoView.animate('out');
-        self.photoView.modalMessage('Nice!', Config.nice_delay, 200, function() {
+        self.photoView.modalMessage('Nice!', self.config.nice_delay, 200, function() {
           self.photoView.slideInNext();
         });
       },
