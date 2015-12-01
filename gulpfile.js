@@ -4,6 +4,8 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 var del = require('del');
+var Server = require('karma').Server;
+console.log("Server", Server);
 
 var paths = {
   scripts: [
@@ -29,7 +31,14 @@ gulp.task("watch", function() {
 
 gulp.task("clean", function(cb) {
   del(['build'], cb);
-})
+});
+
+gulp.task('test', function(done) {
+  new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+});
 
 gulp.task('scripts', ['clean'], function() {
   gulp.src(paths.styles)
