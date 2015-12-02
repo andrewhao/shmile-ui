@@ -57,7 +57,9 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
           self.photoView.flashStart();
           self.socket.emit('snap', true);
         }
-        CameraUtils.snap(self.appState.current_frame_idx, cheeseCb);
+        CameraUtils.snap(self.photoView,
+												 self.appState.current_frame_idx,
+												 cheeseCb);
       },
       onphoto_saved: function(e, f, t, data) {
         // update UI

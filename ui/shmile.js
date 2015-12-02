@@ -4,12 +4,17 @@ $(window).ready(function() {
   var socketProxy = new SocketProxy();
   var appState = new AppState();
 
+	// Inter-object communication layer.
+	var channel = {};
+	_.extend(channel, Backbone.Events);
+
   window.io = window.io || undefined;
 
-  window.p = new PhotoView(window.Config, appState);
-  bv = new ButtonView();
+  var p = new PhotoView(window.Config, appState, channel);
+  var bv = new ButtonView(channel);
+  var ssm = new ShmileStateMachine(p, socketProxy, appState, window.Config, bv)
 
-  var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv)
+	var eventHandler = new StateMachineEventHandler(ssm, channel).init();
 
   bv.fsm = ssm.fsm
 
