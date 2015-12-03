@@ -1,23 +1,25 @@
 /**
- * A class of utility methods.
+ * A bucket of utility methods.
  */
  var CameraUtils = function() {};
 
 /**
  * Play the snap effect.
+ *
+ * @param {PhotoView} photoView
  * @param {Integer} idx
  *   The frame index to place the updated image.
- * @param {Function} cheeseCB
+ * @param {Function} cheeseCb
  *   Code to execute after "Cheese" is displayed.
  *   Typically, this wraps the command to fire the shutter.
  */
-CameraUtils.snap = function(idx, cheeseCb) {
-  p.zoomFrame(idx, 'in');
+CameraUtils.snap = function(photoView, idx, cheeseCb) {
+  photoView.zoomFrame(idx, 'in');
   // These guys need to be promises.
-  p.modalMessage('Ready?', Config.ready_delay, 200, function() {
-    p.modalMessage("3", 1000, 200, function() {
-      p.modalMessage("2", 1000, 200,  function() {
-        p.modalMessage("1", 1000, 200, function() {
+  photoView.modalMessage('Ready?', Config.ready_delay, 200, function() {
+    photoView.modalMessage("3", 1000, 200, function() {
+      photoView.modalMessage("2", 1000, 200,  function() {
+        photoView.modalMessage("1", 1000, 200, function() {
           cheeseCb();
         });
       });
@@ -133,7 +135,9 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
           self.photoView.flashStart();
           self.socket.emit('snap', true);
         }
-        CameraUtils.snap(self.appState.current_frame_idx, cheeseCb);
+        CameraUtils.snap(self.photoView,
+												 self.appState.current_frame_idx,
+												 cheeseCb);
       },
       onphoto_saved: function(e, f, t, data) {
         // update UI
@@ -177,6 +181,22 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
     }
   });
 }
+
+/**
+ * Maps channel events to state machine events.
+ */
+var StateMachineEventHandler = function(stateMachine, channel) {
+	this.stateMachine = stateMachine;
+	this.channel = channel;
+}
+
+StateMachineEventHandler.prototype.init = function() {
+	var self = this;
+	this.channel.bind('ui_button_pressed', function() {
+		self.stateMachine.fsm.ui_button_pressed();
+	});
+}
+
 
 /**
  * Proxy object that allows the late initialization of the socket, if one
@@ -594,8 +614,9 @@ var PhotoView = Backbone.View.extend({
   }
 });
 
-var ButtonView = function(fsm) {
+var ButtonView = function(fsm, channel) {
   this.fsm = fsm;
+	this.channel = channel;
 }
 
 ButtonView.prototype.render = function() {
@@ -615,30 +636,31 @@ ButtonView.prototype.render = function() {
   this.startButton.bind(buttonTriggerEvt, function(e) {
     var button = $(e.currentTarget);
     button.fadeOut(1000);
-    $(document).trigger('ui_button_pressed');
-  });
-
-  $(document).bind('ui_button_pressed', function() {
-    console.log('ui_button_pressed evt');
-    self.fsm.ui_button_pressed();
+    self.channel.trigger('ui_button_pressed');
   });
 }
+
 ButtonView.prototype.fadeIn = function() {
   this.startButton.fadeIn();
 }
 
-
 // Everything required to set up the app.
-$(window).ready(function() {
+var Shmile = function() {};
+Shmile.prototype.initialize = function() {
   var socketProxy = new SocketProxy();
   var appState = new AppState();
 
+	// Inter-object communication layer.
+	var channel = {};
+	_.extend(channel, Backbone.Events);
+
   window.io = window.io || undefined;
 
-  window.p = new PhotoView(window.Config, appState);
-  bv = new ButtonView();
+  var p = new PhotoView(window.Config, appState, channel);
+  var bv = new ButtonView(channel);
+  var ssm = new ShmileStateMachine(p, socketProxy, appState, window.Config, bv)
 
-  var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv)
+	var eventHandler = new StateMachineEventHandler(ssm, channel).init();
 
   bv.fsm = ssm.fsm
 
@@ -650,4 +672,5 @@ $(window).ready(function() {
 
   bv.render();
   p.render();
-});
+};
+

@@ -1,6 +1,6 @@
-
 // Everything required to set up the app.
-$(window).ready(function() {
+var Shmile = function() {};
+Shmile.prototype.initialize = function() {
   var socketProxy = new SocketProxy();
   var appState = new AppState();
 
@@ -26,4 +26,5 @@ $(window).ready(function() {
 
   bv.render();
   p.render();
-});
+};
+

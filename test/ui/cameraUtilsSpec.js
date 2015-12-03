@@ -1,14 +1,19 @@
 describe("CameraUtils", function() {
   describe(".snap", function() {
-		it('counts down with a modal message', function(done) {
-			var photoView = jasmine.spy();
-			var photoIndex = 0;
+		it('counts down with a modal message', function() {
+			var photoView = {
+				zoomFrame: function() {},
+				modalMessage: function(_msg, _delay1, _delay2, cb) { cb() }
+			};
 
-			expect(photoView).toReceive('zoomFrame').with(photoIndex, 'in');
-			expect(photoView).toReceive('modalMessage').with('3', 1000, 200);
-			expect(photoView).toReceive('modalMessage').with('2', 1000, 200);
-			expect(photoView).toReceive('modalMessage').with('1', 1000, 200);
-			CameraUtils.snap(photoView, photoIndex, done);
+			spyOn(photoView, 'zoomFrame');
+			spyOn(photoView, 'modalMessage').and.callThrough();
+
+			CameraUtils.snap(photoView, 0, function() {});
+
+			expect(photoView.zoomFrame).toHaveBeenCalled();
+			expect(photoView.modalMessage).toHaveBeenCalled();
+			expect(photoView.modalMessage.calls.count()).toEqual(4);
 		});
   });
 

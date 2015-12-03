@@ -13,6 +13,7 @@ var paths = {
     'ui/config.js',
     'ui/appState.js',
     'ui/shmileStateMachine.js',
+    'ui/stateMachineEventHandler.js',
     'ui/cameraUtils.js',
     'ui/socketProxy.js',
     'ui/socketLayer.js',

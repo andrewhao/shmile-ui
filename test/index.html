@@ -22,6 +22,11 @@
   <script src="../bower_components/raphael/raphael.js"></script>
 
   <script src="../build/js/shmile-ui.js"></script>
+  <script>
+    $(window).on('load', function() {
+      new Shmile().initialize()
+    });
+  </script>
 </head>
 <body>
   <div id="viewport">

@@ -1,6 +1,6 @@
 {
   "name": "shmile-ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "shmile photobooth JS frontend",
   "main": "index.js",
   "scripts": {
