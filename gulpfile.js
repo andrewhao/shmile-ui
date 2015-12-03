@@ -5,7 +5,6 @@ var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 var del = require('del');
 var Server = require('karma').Server;
-console.log("Server", Server);
 
 var paths = {
   scripts: [
@@ -35,8 +34,10 @@ gulp.task("clean", function(cb) {
 });
 
 gulp.task('test', function(done) {
+	file = __dirname + '/karma.conf.js'
+	console.log("config file is", file);
   new Server({
-    configFile: __dirname + '/karma.conf.js',
+    configFile: file,
     singleRun: true
   }, done).start();
 });
