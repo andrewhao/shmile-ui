@@ -35,7 +35,6 @@ gulp.task("clean", function(cb) {
 
 gulp.task('test', function(done) {
 	file = __dirname + '/karma.conf.js'
-	console.log("config file is", file);
   new Server({
     configFile: file,
     singleRun: true
