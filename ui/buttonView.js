@@ -1,5 +1,6 @@
-var ButtonView = function(fsm) {
+var ButtonView = function(fsm, channel) {
   this.fsm = fsm;
+	this.channel = channel;
 }
 
 ButtonView.prototype.render = function() {
@@ -19,14 +20,10 @@ ButtonView.prototype.render = function() {
   this.startButton.bind(buttonTriggerEvt, function(e) {
     var button = $(e.currentTarget);
     button.fadeOut(1000);
-    $(document).trigger('ui_button_pressed');
-  });
-
-  $(document).bind('ui_button_pressed', function() {
-    console.log('ui_button_pressed evt');
-    self.fsm.ui_button_pressed();
+    self.channel.trigger('ui_button_pressed');
   });
 }
+
 ButtonView.prototype.fadeIn = function() {
   this.startButton.fadeIn();
 }

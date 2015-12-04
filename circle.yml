@@ -1,0 +1,6 @@
+test:
+  pre:
+    - bower install
+machine:
+  node:
+    version: 4.2

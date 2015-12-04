@@ -1,0 +1,22 @@
+---
+engines:
+  rubocop:
+    enabled: true
+  coffeelint:
+    enabled: true
+  eslint:
+    enabled: true
+  csslint:
+    enabled: true
+  fixme:
+    enabled: true
+ratings:
+  paths:
+  - "**.rb"
+  - "**.coffee"
+  - "**.js"
+  - "**.jsx"
+  - "**.css"
+exclude_paths:
+- node_modules/**/*
+- test/**/*

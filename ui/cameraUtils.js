@@ -1,23 +1,25 @@
 /**
- * A class of utility methods.
+ * A bucket of utility methods.
  */
  var CameraUtils = function() {};
 
 /**
  * Play the snap effect.
+ *
+ * @param {PhotoView} photoView
  * @param {Integer} idx
  *   The frame index to place the updated image.
- * @param {Function} cheeseCB
+ * @param {Function} cheeseCb
  *   Code to execute after "Cheese" is displayed.
  *   Typically, this wraps the command to fire the shutter.
  */
-CameraUtils.snap = function(idx, cheeseCb) {
-  p.zoomFrame(idx, 'in');
+CameraUtils.snap = function(photoView, idx, cheeseCb) {
+  photoView.zoomFrame(idx, 'in');
   // These guys need to be promises.
-  p.modalMessage('Ready?', Config.ready_delay, 200, function() {
-    p.modalMessage("3", 1000, 200, function() {
-      p.modalMessage("2", 1000, 200,  function() {
-        p.modalMessage("1", 1000, 200, function() {
+  photoView.modalMessage('Ready?', Config.ready_delay, 200, function() {
+    photoView.modalMessage("3", 1000, 200, function() {
+      photoView.modalMessage("2", 1000, 200,  function() {
+        photoView.modalMessage("1", 1000, 200, function() {
           cheeseCb();
         });
       });

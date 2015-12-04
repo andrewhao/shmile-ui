@@ -15,6 +15,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+			'bower_components/jquery/dist/jquery.js',
+			'bower_components/raphael/raphael.js',
+			'bower_components/underscore/underscore.js',
+			'bower_components/backbone/backbone.js',
       'ui/**/*.js',
       'test/**/*Spec.js'
     ],
@@ -34,7 +38,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['dots'],
 
 
     // web server port
@@ -56,7 +60,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'PhantomJS'],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
