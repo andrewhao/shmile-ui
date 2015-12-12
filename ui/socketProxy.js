@@ -1,3 +1,5 @@
+import _ from 'underscore'
+import Backbone from 'backbone'
 /**
  * Proxy object that allows the late initialization of the socket, if one
  * exists at all. In instances where we never initialize the socket, we allow
@@ -32,3 +34,5 @@ SocketProxy.prototype.emit = function(msg, data) {
   }
   this.socket.emit(msg, data);
 }
+
+module.exports = SocketProxy;

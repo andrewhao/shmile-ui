@@ -13,3 +13,4 @@ StateMachineEventHandler.prototype.init = function() {
 	});
 }
 
+module.exports - StateMachineEventHandler;

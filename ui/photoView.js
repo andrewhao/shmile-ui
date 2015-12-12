@@ -1,3 +1,5 @@
+import CameraUtils from './cameraUtils'
+
 var PhotoView = Backbone.View.extend({
   id: "#viewport",
 
@@ -327,3 +329,5 @@ var PhotoView = Backbone.View.extend({
     }
   }
 });
+
+module.exports = PhotoView;

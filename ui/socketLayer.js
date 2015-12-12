@@ -48,3 +48,5 @@ SocketLayer.prototype.register = function(fsm) {
     self.fsm.photo_saved(data);
   });
 }
+
+module.exports = SocketLayer;

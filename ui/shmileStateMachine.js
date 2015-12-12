@@ -1,3 +1,5 @@
+import CameraUtils from './cameraUtils'
+import StateMachine from 'javascript-state-machine'
 
 /*
  * STATE MACHINE DEFINITION
@@ -103,3 +105,5 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
     }
   });
 }
+
+module.exports = ShmileStateMachine;
