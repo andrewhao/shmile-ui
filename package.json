@@ -46,8 +46,8 @@
     "backbone": "^1.2.3",
     "javascript-state-machine": "^2.3.5",
     "jquery": "^2.1.4",
-    "raphael": "^2.1.4",
     "react": "^0.14.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "webpack-raphael": "^2.1.4"
   }
 }
