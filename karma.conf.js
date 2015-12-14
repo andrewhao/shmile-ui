@@ -15,11 +15,6 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-			'bower_components/jquery/dist/jquery.js',
-			'bower_components/raphael/raphael.js',
-			'bower_components/underscore/underscore.js',
-			'bower_components/backbone/backbone.js',
-      'ui/**/*.js',
       'test/**/*Spec.js'
     ],
 
@@ -32,8 +27,19 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+			'test/**/*Spec.js': ['webpack'],
     },
 
+		webpack: {
+			module: {
+				loaders: [
+					{
+					  test: /ui\/.*\.js$/,
+						loader: 'babel-loader'
+				  }
+				]
+			}
+		},
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -65,6 +71,12 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: false,
+
+		plugins: [
+			require('karma-webpack'),
+			require('karma-jasmine'),
+			require('karma-phantomjs-launcher')
+		]
   });
 };

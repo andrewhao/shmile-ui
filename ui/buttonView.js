@@ -1,4 +1,5 @@
 import config from './config'
+import $ from 'jquery'
 
 var ButtonView = function(fsm, channel) {
   this.fsm = fsm;

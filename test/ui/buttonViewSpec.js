@@ -1,3 +1,8 @@
+var $ = require('jquery'),
+		_ = require('underscore'),
+		Backbone = require('backbone'),
+		ButtonView = require('../../ui/buttonView')
+
 describe('ButtonView', function() {
 	beforeEach(function() {
 		this.startEl = $('<button id="start-button">Start</button>');

@@ -1,3 +1,5 @@
+var CameraUtils = require('../../ui/cameraUtils');
+
 describe("CameraUtils", function() {
   describe(".snap", function() {
 		it('counts down with a modal message', function() {
