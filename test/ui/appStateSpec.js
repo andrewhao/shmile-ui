@@ -1,4 +1,4 @@
-var AppState = require('../../ui/appState')
+import AppState from '../../ui/appState'
 
 describe('AppState', function() {
 	beforeEach(function() {

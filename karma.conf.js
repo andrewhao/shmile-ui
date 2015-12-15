@@ -43,6 +43,9 @@ module.exports = function(config) {
       plugins: [
         new webpack.NoErrorsPlugin()
       ],
+			query: {
+				presets: ['es2015']
+			}
 		},
 
     // test results reporter to use
