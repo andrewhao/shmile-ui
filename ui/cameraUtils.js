@@ -1,3 +1,5 @@
+import config from './config'
+
 /**
  * A bucket of utility methods.
  */
@@ -16,7 +18,7 @@
 CameraUtils.snap = function(photoView, idx, cheeseCb) {
   photoView.zoomFrame(idx, 'in');
   // These guys need to be promises.
-  photoView.modalMessage('Ready?', Config.ready_delay, 200, function() {
+  photoView.modalMessage('Ready?', config.ready_delay, 200, function() {
     photoView.modalMessage("3", 1000, 200, function() {
       photoView.modalMessage("2", 1000, 200,  function() {
         photoView.modalMessage("1", 1000, 200, function() {
@@ -42,3 +44,5 @@ CameraUtils.scale4x6 = function(maxw, maxh) {
         return {w: maxw, h: maxw * 4/6}
     }
 }
+
+module.exports = CameraUtils;

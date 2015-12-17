@@ -1,3 +1,5 @@
+import $ from 'jquery'
+
 var Config = {
   photo_margin: 50, // Margin for the composite photo per side
   window_width: $(window).width(),
@@ -18,3 +20,5 @@ var Config = {
   // For usability enhancements on iPad, set this to "true"
   is_mobile: false
 }
+
+module.exports = Config;

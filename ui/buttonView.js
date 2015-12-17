@@ -1,3 +1,6 @@
+import config from './config'
+import $ from 'jquery'
+
 var ButtonView = function(fsm, channel) {
   this.fsm = fsm;
 	this.channel = channel;
@@ -7,15 +10,15 @@ ButtonView.prototype.render = function() {
   var self = this;
   // init code
   this.startButton = $('button#start-button');
-  var buttonX = (Config.window_width - this.startButton.outerWidth())/2;
-  var buttonY = (Config.window_height - this.startButton.outerHeight())/2;
+  var buttonX = (config.window_width - this.startButton.outerWidth())/2;
+  var buttonY = (config.window_height - this.startButton.outerHeight())/2;
 
   this.startButton.hide();
 
   // Position the start button in the center
   this.startButton.css({'top': buttonY, 'left': buttonX});
 
-  var buttonTriggerEvt = Config.is_mobile ? "touchend" : "click";
+  var buttonTriggerEvt = config.is_mobile ? "touchend" : "click";
 
   this.startButton.bind(buttonTriggerEvt, function(e) {
     var button = $(e.currentTarget);
@@ -27,3 +30,5 @@ ButtonView.prototype.render = function() {
 ButtonView.prototype.fadeIn = function() {
   this.startButton.fadeIn();
 }
+
+module.exports = ButtonView;

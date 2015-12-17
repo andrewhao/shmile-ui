@@ -1,3 +1,6 @@
+import CameraUtils from './cameraUtils'
+import Raphael from '../vendor/raphael'
+
 var PhotoView = Backbone.View.extend({
   id: "#viewport",
 
@@ -327,3 +330,5 @@ var PhotoView = Backbone.View.extend({
     }
   }
 });
+
+module.exports = PhotoView;

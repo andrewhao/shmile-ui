@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/andrewhao/shmile-ui",
   "devDependencies": {
+    "babel-core": "^6.3.17",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
     "bower": "^1.3.12",
     "del": "^1.1.1",
     "gulp": "^3.8.10",
@@ -32,7 +35,19 @@
     "jasmine-core": "^2.1.3",
     "karma": "^0.13.15",
     "karma-chrome-launcher": "^0.1.7",
-    "karma-jasmine": "^0.3.4",
-    "karma-phantomjs-launcher": "^0.1.4"
+    "karma-jasmine": "^0.3.6",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-webpack": "^1.7.0",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0",
+    "webpack-hot-middleware": "^2.6.0"
+  },
+  "dependencies": {
+    "backbone": "^1.2.3",
+    "javascript-state-machine": "^2.3.5",
+    "jquery": "^2.1.4",
+    "react": "^0.14.3",
+    "underscore": "^1.8.3",
+    "webpack-raphael": "^2.1.4"
   }
 }
