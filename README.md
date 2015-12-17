@@ -20,4 +20,8 @@ shmile-ui is integratable as a Bower component in shmile.
 ## Tests
 
     $ npm install -g karma-cli
-    $ gulp test
+    $ npm test
+
+### Running with gulp-watch
+
+    $ gulp watch

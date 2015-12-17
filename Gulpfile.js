@@ -20,13 +20,17 @@ var paths = {
     'ui/buttonView.js',
     'ui/shmile.js'
   ],
+	tests: [
+		'test/**/*Spec.js'
+	],
   styles: [
     "css/shmile.css"
   ]
 };
 
 gulp.task("watch", function() {
-  gulp.watch(paths.scripts, ['scripts']);
+  gulp.watch(paths.scripts, ['test']);
+	gulp.watch(paths.tests, ['test']);
 });
 
 gulp.task("clean", function(cb) {

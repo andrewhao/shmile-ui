@@ -7,8 +7,8 @@ import Backbone from 'backbone'
  */
 var SocketProxy = function() {
   this.socket = null;
-  this.fakeSocket = {};
-  _.extend(this.fakeSocket, Backbone.Events)
+  this.nullSocket = {};
+  _.extend(this.nullSocket, Backbone.Events)
 }
 
 SocketProxy.prototype.lateInitialize = function(socket) {
@@ -17,8 +17,8 @@ SocketProxy.prototype.lateInitialize = function(socket) {
 
 SocketProxy.prototype.on = function(evt, cb) {
   if (this.socket === null) {
-    console.log("SocketProxy 'on' delegating to fakeSocket")
-    this.fakeSocket.on(evt, cb)
+    console.log("SocketProxy 'on' delegating to nullSocket")
+    this.nullSocket.on(evt, cb)
     return
   }
   this.socket.on(evt, cb);
@@ -26,8 +26,8 @@ SocketProxy.prototype.on = function(evt, cb) {
 
 SocketProxy.prototype.emit = function(msg, data) {
   if (this.socket === null) {
-    console.log("SocketProxy 'emit' delegating to fakeSocket")
-    this.fakeSocket.trigger(msg, function() {
+    console.log("SocketProxy 'emit' delegating to nullSocket")
+    this.nullSocket.trigger(msg, function() {
       console.log(data)
     });
     return
