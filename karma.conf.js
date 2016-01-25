@@ -2,6 +2,9 @@
 // Generated on Mon Jan 05 2015 15:46:03 GMT-0800 (PST)
 var webpack = require('webpack')
 
+var webpackConfig = require('./webpack.config.js');
+webpackConfig.entry = {};
+
 module.exports = function(config) {
   config.set({
 
@@ -11,46 +14,23 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
-
+    frameworks: ['jasmine-jquery', 'jasmine'],
 
     // list of files / patterns to load in the browser
     files: [
       'test/**/*Spec.js'
     ],
 
-
     // list of files to exclude
-    exclude: [
-    ],
-
+    exclude: [ ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-			'test/**/*Spec.js': ['webpack'],
+			'./test/**/*Spec.js': ['webpack']
     },
 
-		webpack: {
-			module: {
-				loaders: [
-					{
-					  test: /ui\/.*\.js$/,
-						loader: 'babel'
-				  },
-					{
-						test: /test\/.*\.js$/,
-						loader: 'babel'
-					}
-				]
-			},
-      plugins: [
-        new webpack.NoErrorsPlugin()
-      ],
-			query: {
-				presets: ['es2015']
-			}
-		},
+		webpack: webpackConfig,
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -83,7 +63,9 @@ module.exports = function(config) {
 		plugins: [
 			require('karma-webpack'),
 			require('karma-jasmine'),
-			require('karma-phantomjs-launcher')
+			require('karma-phantomjs-launcher'),
+			require('karma-babel-preprocessor'),
+			require('karma-jasmine-jquery')
 		]
   });
 };
