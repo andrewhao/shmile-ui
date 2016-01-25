@@ -9,6 +9,8 @@ import SocketProxy from './socketProxy'
 import SocketLayer from './socketLayer'
 import config from './config'
 
+require("../css/shmile.css")
+
 var Shmile = function() {};
 Shmile.prototype.initialize = function() {
   var socketProxy = new SocketProxy();

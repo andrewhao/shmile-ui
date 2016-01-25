@@ -1,19 +1,21 @@
 var path = require('path')
 var webpack = require('webpack')
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
-  entry: [
-    './ui/shmile'
-  ],
+  entry: {
+		"shmile-ui": './ui/shmile'
+	},
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    path: path.join(__dirname, 'build'),
+    filename: '[name].js',
 		publicPath: "/assets/"
   },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+	  new ExtractTextPlugin("[name].css")
   ],
   module: {
     loaders: [{
@@ -23,7 +25,7 @@ module.exports = {
       include: __dirname
     }, {
       test: /\.css?$/,
-      loaders: [ 'style', 'raw' ],
+			loader: ExtractTextPlugin.extract("style-loader", "css-loader"),
       include: __dirname
     }]
   }
