@@ -37,7 +37,11 @@ module.exports = function(config) {
 					{
 					  test: /ui\/.*\.js$/,
 						loader: 'babel'
-				  }
+				  },
+					{
+						test: /test\/.*\.js$/,
+						loader: 'babel'
+					}
 				]
 			},
       plugins: [

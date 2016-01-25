@@ -6,10 +6,17 @@ var PhotoView = Backbone.View.extend({
 
   initialize: function(config, state) {
     this.config = config;
-    this.canvas = new Raphael('viewport', this.config.window_width, this.config.window_height);
-    this.frames = this.canvas.set(); // List of SVG black rects
-    this.images = this.canvas.set(); // List of SVG images
+    this.canvas = new Raphael('viewport',
+															this.config.window_width,
+															this.config.window_height);
+    // List of SVG black rects
+    this.frames = this.canvas.set();
+    // List of SVG images
+    this.images = this.canvas.set();
+
+		// Global set of SVG elements.
     this.all = this.canvas.set();
+
     this.overlayImage = null;
     this.photoBorder = 0;
     this.compositeDim = null;
@@ -17,9 +24,7 @@ var PhotoView = Backbone.View.extend({
     this.compositeOrigin = null;
     this.compositeCenter = null;
     this.state = state;
-  },
 
-  render: function() {
     var w = this.config.window_width - this.config.photo_margin;
     var h = this.config.window_height - this.config.photo_margin;
     this.compositeDim = CameraUtils.scale4x6(w, h);
@@ -27,18 +32,24 @@ var PhotoView = Backbone.View.extend({
         x: (this.config.window_width - this.compositeDim.w) / 2,
         y: (this.config.window_height - this.compositeDim.h) / 2
     };
+
     this.compositeCenter = {
         x: this.compositeOrigin.x + (this.compositeDim.w/2),
         y: this.compositeOrigin.y + (this.compositeDim.h/2)
     }
-    var r = this.canvas.rect(this.compositeOrigin.x, this.compositeOrigin.y, this.compositeDim.w, this.compositeDim.h);
-
-    r.attr({'fill': 'white'});
-
-    this.all.push(r);
 
     // Scale the photo padding too
     this.photoBorder = this.compositeDim.w / 50;
+  },
+
+  render: function() {
+		// Draw the white container for the 4-up grid.
+    var r = this.canvas.rect(this.compositeOrigin.x,
+														 this.compositeOrigin.y,
+														 this.compositeDim.w,
+														 this.compositeDim.h);
+    r.attr({'fill': 'white'});
+    this.all.push(r);
 
     //upper x
     var frame_x = this.compositeOrigin.x + this.photoBorder;
@@ -47,15 +58,17 @@ var PhotoView = Backbone.View.extend({
         w: (this.compositeDim.w - (3*this.photoBorder))/2,
         h: (this.compositeDim.h - (3*this.photoBorder))/2
     };
+
+		// Draw upper-left frame + image
     var frame = this.canvas.rect(frame_x, frame_y, this.frameDim.w, this.frameDim.h);
     frame.attr({'fill': 'black'});
     var img = this.canvas.image(null, frame_x, frame_y, this.frameDim.w, this.frameDim.h);
-
     this.images.push(img);
     this.frames.push(frame);
     this.all.push(img);
     this.all.push(frame);
 
+		// Draw upper-right frame + image
     frame = frame.clone();
     img = img.clone();
     frame.translate(this.frameDim.w + this.photoBorder, 0);
@@ -65,6 +78,7 @@ var PhotoView = Backbone.View.extend({
     this.all.push(frame);
     this.all.push(img);
 
+		// Draw lower-left frame + image
     frame = frame.clone();
     img = img.clone();
     frame.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
@@ -74,6 +88,7 @@ var PhotoView = Backbone.View.extend({
     this.all.push(frame);
     this.all.push(img);
 
+		// Draw lower-right frame + image
     frame = frame.clone();
     img = img.clone();
     frame.translate(this.frameDim.w + this.photoBorder, 0);
@@ -93,7 +108,7 @@ var PhotoView = Backbone.View.extend({
     this.all.push(o);
     this.overlayImage = o;
 
-    // Hide everything and move out of sight.
+    // Hide everything and move out of sight to prepare
     this.all.hide();
     this.all.translate(-this.config.window_width, 0);
   },
