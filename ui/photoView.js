@@ -125,8 +125,8 @@ var PhotoView = Backbone.View.extend({
     this.overlayImage = o;
 
     // Hide everything and move out of sight to prepare
-    // this.all.hide();
-    this.all.transform("t-100,0");//`t${-this.config.window_width},0`);
+    //this.all.hide();
+    //this.all.transform(`t${-this.config.window_width},0`);
   },
 
   toString: function() {
@@ -162,7 +162,7 @@ var PhotoView = Backbone.View.extend({
     var afterShowPhoto = function () {
       // We've found and revealed the photo, now hide the old black rect and zoom out
       frameEl.hide();
-      p.zoomFrame(idx, 'out', cb);
+      view.zoomFrame(idx, 'out', cb);
     }
     imgEl.animate({'opacity': 1}, 200, afterShowPhoto);
   },
@@ -174,16 +174,15 @@ var PhotoView = Backbone.View.extend({
    */
   animate: function(dir, cb) {
     if (dir === 'in') {
-			debugger;
       this.all.show();
       this.images.hide();
       this.overlayImage.hide();
       this.all.animate({
-        'translation': `t${this.config.window_width},0`
+        'transform': `T0,0`
       }, 1000, "<>", cb);
     } else if (dir === 'out') {
       this.all.animate({
-        'translation': `t${this.config.window_width},0"`
+        'transform': `T${this.config.window_width},0"`
       }, 1000, "<>", cb);
     }
   },
@@ -226,26 +225,24 @@ var PhotoView = Backbone.View.extend({
           dx = -this.state.zoomed.dx;
           dy = -this.state.zoomed.dy;
           view.all.animate({
-              'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),
-          }, animSpeed, 'bounce', function() {
-              view.all.animate({
-                  'translation': dx+','+dy
-              }, animSpeed, '<>', onfinish)
-          });
+              'transform': `s1,1,${this.state.centerX},${this.state.centerY}`,
+          }, animSpeed, 'bounce', onfinish);
           // Clear the zoom data.
           this.state.zoomed = null;
       } else if (dir !== "out") {
           view.all.animate({
-              'translation': dx+','+dy
+              'transform': `t${dx},${dy}`
           }, animSpeed, '<>', function() {
               view.all.animate({
-                  'scale': [scaleFactor, scaleFactor, view.compositeCenter.x, view.compositeCenter.y].join(','),
+                  'transform': `...s${scaleFactor},${scaleFactor},${centerX},${centerY}`,
               }, animSpeed, 'bounce', onfinish)
           });
           // Store the zoom data for next zoom.
           this.state.zoomed = {
               dx: dx,
               dy: dy,
+              centerX: centerX,
+              centerY: centerY,
               scaleFactor: scaleFactor
           };
       }

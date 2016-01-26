@@ -22,8 +22,6 @@ Shmile.prototype.initialize = function() {
 
   window.io = window.io || undefined;
 
-	debugger;
-
   var p = new PhotoView(config, appState, channel);
   var bv = new ButtonView(channel);
   var ssm = new ShmileStateMachine(p, socketProxy, appState, config, bv)

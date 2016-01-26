@@ -25,7 +25,7 @@ SocketProxy.prototype.isLive = function() {
 
 SocketProxy.prototype.on = function(evt, cb) {
   if (this.socket === null) {
-    console.log("SocketProxy 'on' delegating to nullChannel")
+    console.log(`SocketProxy 'on' delegating '${evt}' to nullChannel`)
     this.nullChannel.on(evt, cb)
     return
   }
@@ -34,7 +34,7 @@ SocketProxy.prototype.on = function(evt, cb) {
 
 SocketProxy.prototype.emit = function(msg, data) {
   if (this.socket === null) {
-    console.log("SocketProxy 'emit' delegating to nullChannel")
+    console.log(`SocketProxy 'emit' delegating '${msg}' to nullChannel`)
     this.nullChannel.trigger(msg, function() {
 			console.log(`Triggering ${msg} on nullChannel`);
       console.log(data)

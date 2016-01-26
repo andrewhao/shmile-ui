@@ -1,4 +1,3 @@
-import CameraUtils from './cameraUtils'
 import StateMachine from 'javascript-state-machine'
 
 /*
@@ -22,12 +21,13 @@ import StateMachine from 'javascript-state-machine'
  * @param [AppState] appState Global initialized state
  * @param [Config] config     The configuration options passed to the app
  */
-var ShmileStateMachine = function(photoView, socket, appState, config, buttonView) {
+var ShmileStateMachine = function(photoView, socket, appState, config, buttonView, cameraUtils) {
   this.photoView = photoView;
   this.socket = socket;
   this.appState = appState;
   this.config = config;
   this.buttonView = buttonView
+	this.cameraUtils = cameraUtils
 
   var self = this;
 
@@ -49,6 +49,7 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
         });
       },
       onenterready: function() {
+				debugger;
         self.photoView.resetState();
       },
       onleaveready: function() {
@@ -59,7 +60,7 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
           self.photoView.flashStart();
           self.socket.emit('snap', true);
         }
-        CameraUtils.snap(self.photoView,
+        self.cameraUtils.snap(self.photoView,
 												 self.appState.current_frame_idx,
 												 cheeseCb);
       },
