@@ -49,7 +49,6 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
         });
       },
       onenterready: function() {
-				debugger;
         self.photoView.resetState();
       },
       onleaveready: function() {

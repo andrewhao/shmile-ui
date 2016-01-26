@@ -83,8 +83,8 @@ var PhotoView = Backbone.View.extend({
     img = img.clone();
 		$(frame.node).attr('class', 'frame-2')
 		$(img.node).attr('class', 'image-2')
-    frame.translate(this.frameDim.w + this.photoBorder, 0);
-    img.translate(this.frameDim.w + this.photoBorder, 0);
+    frame.transform(`t${this.frameDim.w + this.photoBorder},0`);
+    img.transform(`t${this.frameDim.w + this.photoBorder},0`);
     this.frames.push(frame);
     this.images.push(img);
     this.all.push(frame);
@@ -95,8 +95,8 @@ var PhotoView = Backbone.View.extend({
     img = img.clone();
 		$(frame.node).attr('class', 'frame-3')
 		$(img.node).attr('class', 'image-3')
-    frame.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
-    img.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
+    frame.transform(`t${-(this.frameDim.w + this.photoBorder)},${this.frameDim.h + this.photoBorder}`);
+    img.transform(`t${-(this.frameDim.w + this.photoBorder)},${this.frameDim.h + this.photoBorder}`);
     this.frames.push(frame);
     this.images.push(img);
     this.all.push(frame);
@@ -107,8 +107,8 @@ var PhotoView = Backbone.View.extend({
     img = img.clone();
 		$(frame.node).attr('class', 'frame-4')
 		$(img.node).attr('class', 'image-4')
-    frame.translate(this.frameDim.w + this.photoBorder, 0);
-    img.translate(this.frameDim.w + this.photoBorder, 0);
+    frame.transform(`t${this.frameDim.w + this.photoBorder},0`);
+    img.transform(`t${this.frameDim.w + this.photoBorder},0`);
     this.frames.push(frame);
     this.images.push(img);
     this.all.push(frame);
@@ -173,14 +173,17 @@ var PhotoView = Backbone.View.extend({
    * For out: assume the composite image is centered. Move out of sight and hide.
    */
   animate: function(dir, cb) {
+		return
     if (dir === 'in') {
       this.all.show();
       this.images.hide();
       this.overlayImage.hide();
-      this.all.animate({
-        'transform': `T0,0`
-      }, 1000, "<>", cb);
+			this.all.transform("t0,0")
+      //this.all.animate({
+      //  'transform': `t0,0`
+      //}, 1000, "<>", cb);
     } else if (dir === 'out') {
+			return
       this.all.animate({
         'transform': `T${this.config.window_width},0"`
       }, 1000, "<>", cb);
