@@ -54,7 +54,7 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
       onleaveready: function() {
       },
       onenterwaiting_for_photo: function(e) {
-        cheeseCb = function() {
+        let cheeseCb = function() {
           self.photoView.modalMessage('Cheese!', self.config.cheese_delay);
           self.photoView.flashStart();
           self.socket.emit('snap', true);

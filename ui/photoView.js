@@ -115,19 +115,18 @@ var PhotoView = Backbone.View.extend({
     this.all.push(img);
 
     // Draw the PNG logo overlay.
-    let o = this.canvas.image(
-        '/images/overlay.png',
-        this.compositeOrigin.x,
-        this.compositeOrigin.y,
-        this.compositeDim.w,
-        this.compositeDim.h);
+    let o = this.canvas.image('/images/overlay.png',
+															this.compositeOrigin.x,
+															this.compositeOrigin.y,
+															this.compositeDim.w,
+															this.compositeDim.h);
 		$(o.node).attr('class', 'overlay')
     this.all.push(o);
     this.overlayImage = o;
 
     // Hide everything and move out of sight to prepare
-    this.all.hide();
-    this.all.translate(-this.config.window_width, 0);
+    // this.all.hide();
+    this.all.transform("t-100,0");//`t${-this.config.window_width},0`);
   },
 
   toString: function() {
@@ -175,15 +174,16 @@ var PhotoView = Backbone.View.extend({
    */
   animate: function(dir, cb) {
     if (dir === 'in') {
+			debugger;
       this.all.show();
       this.images.hide();
       this.overlayImage.hide();
       this.all.animate({
-        'translation': this.config.window_width+",0"
+        'translation': `t${this.config.window_width},0`
       }, 1000, "<>", cb);
     } else if (dir === 'out') {
       this.all.animate({
-        'translation': this.config.window_width+",0"
+        'translation': `t${this.config.window_width},0"`
       }, 1000, "<>", cb);
     }
   },
@@ -258,7 +258,7 @@ var PhotoView = Backbone.View.extend({
       this.resetState();
       this.modalMessage('Next!');
       this.all.hide();
-      this.all.translate(-this.config.window_width * 2, 0);
+      this.all.transform(`t${-this.config.window_width * 2},0`);
       this.animate('in', function() {
         $('#start-button').fadeIn();
       });
