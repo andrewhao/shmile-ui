@@ -36,4 +36,19 @@ describe('SocketProxy', function() {
 			});
 		});
 	});
+
+	describe("#channel", function() {
+		describe("with live socket", function() {
+			it("returns the socket object", function() {
+			  this.subject.lateInitialize(this.realSocket);
+				expect(this.subject.channel()).toEqual(this.realSocket);
+			});
+		});
+
+		describe("with null socket", function() {
+			it("returns null channel", function() {
+				expect(this.subject.channel()).toEqual(this.subject.nullChannel);
+			});
+		});
+	});
 });

@@ -7,9 +7,9 @@ var PhotoView = Backbone.View.extend({
 
   initialize: function(config, state) {
     this.config = config;
-    this.canvas = new Raphael('viewport',
-															this.config.window_width,
-															this.config.window_height);
+		this.canvas = new Raphael('viewport',
+                              this.config.window_width,
+                              this.config.window_height);
 		$(this.canvas.canvas).attr('class', 'photo-view')
     // List of SVG black rects
     this.frames = this.canvas.set();

@@ -3,6 +3,7 @@
   <head>
     <link rel='stylesheet' href='/assets/shmile-ui.css' />
     <script src='/assets/shmile-ui.js'></script>
+    <script src='/assets/fakeServer.js'></script>
     <meta charset="utf-8">
   </head>
   <body class="nicegradient">
@@ -10,6 +11,8 @@
     <button id="start-button" class="awesome superlarge boinkyellow"> Start </button>
     <script>
       new Shmile().initialize()
+      var fs = new FakeServer()
+      fs.initialize(window.socketProxy)
     </script>
   </body>
 </html>

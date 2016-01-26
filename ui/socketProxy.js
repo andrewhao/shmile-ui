@@ -7,18 +7,26 @@ import Backbone from 'backbone'
  */
 var SocketProxy = function() {
   this.socket = null;
-  this.nullSocket = {};
-  _.extend(this.nullSocket, Backbone.Events)
+  this.nullChannel = {};
+  _.extend(this.nullChannel, Backbone.Events)
 }
 
 SocketProxy.prototype.lateInitialize = function(socket) {
   this.socket = socket;
 }
 
+SocketProxy.prototype.channel = function() {
+	return this.isLive() ? this.socket : this.nullChannel;
+};
+
+SocketProxy.prototype.isLive = function() {
+	return this.socket !== null;
+}
+
 SocketProxy.prototype.on = function(evt, cb) {
   if (this.socket === null) {
-    console.log("SocketProxy 'on' delegating to nullSocket")
-    this.nullSocket.on(evt, cb)
+    console.log("SocketProxy 'on' delegating to nullChannel")
+    this.nullChannel.on(evt, cb)
     return
   }
   this.socket.on(evt, cb);
@@ -26,8 +34,9 @@ SocketProxy.prototype.on = function(evt, cb) {
 
 SocketProxy.prototype.emit = function(msg, data) {
   if (this.socket === null) {
-    console.log("SocketProxy 'emit' delegating to nullSocket")
-    this.nullSocket.trigger(msg, function() {
+    console.log("SocketProxy 'emit' delegating to nullChannel")
+    this.nullChannel.trigger(msg, function() {
+			console.log(`Triggering ${msg} on nullChannel`);
       console.log(data)
     });
     return
