@@ -1,6 +1,6 @@
 {
   "name": "shmile-ui",
-  "version": "0.1.0",
+  "version": "0.99.0",
   "homepage": "https://github.com/andrewhao/shmile-ui",
   "authors": [
     "Andrew Hao <andrewhao@gmail.com>"
@@ -18,12 +18,5 @@
     "bower_components",
     "test",
     "tests"
-  ],
-  "dependencies": {
-    "jquery": "~2.1.1",
-    "raphael": "dbe241f4c5310dd9bf3b451c538d78c6c4a0e288",
-    "javascript-state-machine": "~2.3.3",
-    "underscore": "~1.7.0",
-    "backbone": "~1.1.2"
-  }
+  ]
 }
