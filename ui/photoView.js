@@ -5,21 +5,21 @@ import $ from 'jquery'
 var PhotoView = Backbone.View.extend({
   id: "#viewport",
 
-  initialize: function(config, state) {
+  initialize(config, state) {
     this.config = config;
-		this.canvas = new Raphael('viewport',
+    this.canvas = new Raphael('viewport',
                               this.config.window_width,
                               this.config.window_height);
-		$(this.canvas.canvas).attr('class', 'photo-view')
+    $(this.canvas.canvas).attr('class', 'photo-view')
     // List of SVG black rects
     this.frames = this.canvas.set();
     // List of SVG images
     this.images = this.canvas.set();
 
-		// Global set of SVG elements.
+    // Global set of SVG elements.
     this.all = this.canvas.set();
 
-		// Initialize some placeholder values
+    // Initialize some placeholder values
     this.overlayImage = null;
     this.photoBorder = 0;
     this.compositeDim = null;
@@ -28,7 +28,7 @@ var PhotoView = Backbone.View.extend({
     this.compositeCenter = null;
     this.state = state;
 
-		// Calculate dimensions based on window size, specified by the config.
+    // Calculate dimensions based on window size, specified by the config.
     let w = this.config.window_width - this.config.photo_margin;
     let h = this.config.window_height - this.config.photo_margin;
     this.compositeDim = CameraUtils.scale4x6(w, h);
@@ -44,92 +44,79 @@ var PhotoView = Backbone.View.extend({
 
     // Scale the photo padding too
     this.photoBorder = this.compositeDim.w / 50;
+    this.frameDim = {
+      w: (this.compositeDim.w - (3*this.photoBorder))/2,
+      h: (this.compositeDim.h - (3*this.photoBorder))/2
+    };
   },
 
-	destroy: function() {
-		this.canvas.remove();
-	},
+  destroy: function() {
+    this.canvas.remove();
+  },
+
+  renderFrameAt(idx) {
+    let w = this.frameDim.w
+    let h = this.frameDim.h
+
+    let frame_x = this.compositeOrigin.x + this.photoBorder;
+    let frame_y = this.compositeOrigin.y + this.photoBorder;
+
+    if (idx === 2 || idx === 4) {
+      frame_x += w + this.photoBorder;
+    }
+    if (idx === 3 || idx === 4) {
+      frame_y += h + this.photoBorder;
+    }
+
+    let frame = this.canvas.rect(frame_x,
+                                 frame_y,
+                                 w,
+                                 h);
+
+    frame.attr({'fill': 'black'});
+    $(frame.node).attr('class', `frame-${idx}`)
+    let img = this.canvas.image(null,
+                                frame_x,
+                                frame_y,
+                                w,
+                                h);
+    $(img.node).attr('class', `image-${idx}`)
+    this.images.push(img);
+    this.frames.push(frame);
+    this.all.push(img);
+    this.all.push(frame);
+  },
 
   render: function() {
-		// Draw the white container for the 4-up grid.
+    // Draw the white container for the 4-up grid.
     var r = this.canvas.rect(this.compositeOrigin.x,
-														 this.compositeOrigin.y,
-														 this.compositeDim.w,
-														 this.compositeDim.h);
+                             this.compositeOrigin.y,
+                             this.compositeDim.w,
+                             this.compositeDim.h);
     r.attr({'fill': 'white'});
     this.all.push(r);
 
-    // upper x
-    var frame_x = this.compositeOrigin.x + this.photoBorder;
-    var frame_y = this.compositeOrigin.y + this.photoBorder;
-    this.frameDim = {
-        w: (this.compositeDim.w - (3*this.photoBorder))/2,
-        h: (this.compositeDim.h - (3*this.photoBorder))/2
-    };
-
-		// Draw upper-left frame + image
-    var frame = this.canvas.rect(frame_x, frame_y, this.frameDim.w, this.frameDim.h);
-    frame.attr({'fill': 'black'});
-		$(frame.node).attr('class', 'frame-1')
-    var img = this.canvas.image(null, frame_x, frame_y, this.frameDim.w, this.frameDim.h);
-		$(img.node).attr('class', 'image-1')
-    this.images.push(img);
-    this.frames.push(frame);
-    this.all.push(img);
-    this.all.push(frame);
-
-		// Draw upper-right frame + image
-    frame = frame.clone();
-    img = img.clone();
-		$(frame.node).attr('class', 'frame-2')
-		$(img.node).attr('class', 'image-2')
-    frame.transform(`t${this.frameDim.w + this.photoBorder},0`);
-    img.transform(`t${this.frameDim.w + this.photoBorder},0`);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
-
-		// Draw lower-left frame + image
-    frame = frame.clone();
-    img = img.clone();
-		$(frame.node).attr('class', 'frame-3')
-		$(img.node).attr('class', 'image-3')
-    frame.transform(`t${-(this.frameDim.w + this.photoBorder)},${this.frameDim.h + this.photoBorder}`);
-    img.transform(`t${-(this.frameDim.w + this.photoBorder)},${this.frameDim.h + this.photoBorder}`);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
-
-		// Draw lower-right frame + image
-    frame = frame.clone();
-    img = img.clone();
-		$(frame.node).attr('class', 'frame-4')
-		$(img.node).attr('class', 'image-4')
-    frame.transform(`t${this.frameDim.w + this.photoBorder},0`);
-    img.transform(`t${this.frameDim.w + this.photoBorder},0`);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
+    this.renderFrameAt(1);
+    this.renderFrameAt(2);
+    this.renderFrameAt(3);
+    this.renderFrameAt(4);
 
     // Draw the PNG logo overlay.
     let o = this.canvas.image('/images/overlay.png',
-															this.compositeOrigin.x,
-															this.compositeOrigin.y,
-															this.compositeDim.w,
-															this.compositeDim.h);
-		$(o.node).attr('class', 'overlay')
+                              this.compositeOrigin.x,
+                              this.compositeOrigin.y,
+                              this.compositeDim.w,
+                              this.compositeDim.h);
+    $(o.node).attr('class', 'overlay')
     this.all.push(o);
     this.overlayImage = o;
 
     // Hide everything and move out of sight to prepare
-    //this.all.hide();
-    //this.all.transform(`t${-this.config.window_width},0`);
+    this.all.hide();
+    this.all.transform(`t${-this.config.window_width},0`);
   },
 
-  toString: function() {
+  toString() {
     let ret = [];
     ret.push("Size of 'all' set: " + this.all.length);
     ret.push("Size of 'frames' set: " + this.frames.length);
@@ -138,9 +125,9 @@ var PhotoView = Backbone.View.extend({
     return ret.join('\n');
   },
 
-	data: function() {
-		return { num_elements: this.all.length }
-	},
+  data() {
+    return { num_elements: this.all.length }
+  },
 
   /**
    * Updates the image at the set location.
@@ -172,20 +159,17 @@ var PhotoView = Backbone.View.extend({
    * Slide in the composite image.
    * For out: assume the composite image is centered. Move out of sight and hide.
    */
-  animate: function(dir, cb) {
-		return
+  animate(dir, cb) {
     if (dir === 'in') {
       this.all.show();
       this.images.hide();
       this.overlayImage.hide();
-			this.all.transform("t0,0")
-      //this.all.animate({
-      //  'transform': `t0,0`
-      //}, 1000, "<>", cb);
-    } else if (dir === 'out') {
-			return
       this.all.animate({
-        'transform': `T${this.config.window_width},0"`
+        'transform': `t0,0`
+      }, 1000, "<>", cb);
+    } else if (dir === 'out') {
+      this.all.animate({
+        'transform': `t${this.config.window_width},0"`
       }, 1000, "<>", cb);
     }
   },
@@ -204,7 +188,7 @@ var PhotoView = Backbone.View.extend({
    *
    * Depends on the presence of the .zoomed object to store zoom info.
    */
-  zoomFrame: function(idx, dir, onfinish) {
+  zoomFrame(idx, dir, onfinish) {
       var view = this;
       var composite = this.all[idx];
 

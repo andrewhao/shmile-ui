@@ -8,6 +8,7 @@ import StateMachineEventHandler from './stateMachineEventHandler'
 import SocketProxy from './socketProxy'
 import SocketLayer from './socketLayer'
 import config from './config'
+import CameraUtils from './cameraUtils'
 
 require("../css/shmile.css")
 
@@ -24,7 +25,7 @@ Shmile.prototype.initialize = function() {
 
   var p = new PhotoView(config, appState, channel);
   var bv = new ButtonView(channel);
-  var ssm = new ShmileStateMachine(p, socketProxy, appState, config, bv)
+  var ssm = new ShmileStateMachine(p, socketProxy, appState, config, bv, CameraUtils)
 
 	var eventHandler = new StateMachineEventHandler(ssm, channel).init();
 
