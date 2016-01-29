@@ -1,16 +1,16 @@
-import CameraUtils from './cameraUtils'
-import Raphael from '../vendor/raphael'
-import $ from 'jquery'
+import CameraUtils from './cameraUtils';
+import Raphael from '../vendor/raphael';
+import $ from 'jquery';
 
 var PhotoView = Backbone.View.extend({
-  id: "#viewport",
+  id: '#viewport',
 
   initialize(config, state) {
     this.config = config;
     this.canvas = new Raphael('viewport',
                               this.config.window_width,
                               this.config.window_height);
-    $(this.canvas.canvas).attr('class', 'photo-view')
+    $(this.canvas.canvas).attr('class', 'photo-view');
     // List of SVG black rects
     this.frames = this.canvas.set();
     // List of SVG images
@@ -33,30 +33,30 @@ var PhotoView = Backbone.View.extend({
     let h = this.config.window_height - this.config.photo_margin;
     this.compositeDim = CameraUtils.scale4x6(w, h);
     this.compositeOrigin = {
-        x: (this.config.window_width - this.compositeDim.w) / 2,
-        y: (this.config.window_height - this.compositeDim.h) / 2
+      x: (this.config.window_width - this.compositeDim.w) / 2,
+      y: (this.config.window_height - this.compositeDim.h) / 2
     };
 
     this.compositeCenter = {
-        x: this.compositeOrigin.x + (this.compositeDim.w/2),
-        y: this.compositeOrigin.y + (this.compositeDim.h/2)
-    }
+      x: this.compositeOrigin.x + (this.compositeDim.w / 2),
+      y: this.compositeOrigin.y + (this.compositeDim.h / 2)
+    };
 
     // Scale the photo padding too
     this.photoBorder = this.compositeDim.w / 50;
     this.frameDim = {
-      w: (this.compositeDim.w - (3*this.photoBorder))/2,
-      h: (this.compositeDim.h - (3*this.photoBorder))/2
+      w: (this.compositeDim.w - (3 * this.photoBorder)) / 2,
+      h: (this.compositeDim.h - (3 * this.photoBorder)) / 2
     };
   },
 
-  destroy: function() {
+  destroy: function () {
     this.canvas.remove();
   },
 
   renderFrameAt(idx) {
-    let w = this.frameDim.w
-    let h = this.frameDim.h
+    let w = this.frameDim.w;
+    let h = this.frameDim.h;
 
     let frame_x = this.compositeOrigin.x + this.photoBorder;
     let frame_y = this.compositeOrigin.y + this.photoBorder;
@@ -73,27 +73,27 @@ var PhotoView = Backbone.View.extend({
                                  w,
                                  h);
 
-    frame.attr({'fill': 'black'});
-    $(frame.node).attr('class', `frame-${idx}`)
+    frame.attr({ 'fill': 'black' });
+    $(frame.node).attr('class', `frame-${idx}`);
     let img = this.canvas.image(null,
                                 frame_x,
                                 frame_y,
                                 w,
                                 h);
-    $(img.node).attr('class', `image-${idx}`)
+    $(img.node).attr('class', `image-${idx}`);
     this.images.push(img);
     this.frames.push(frame);
     this.all.push(img);
     this.all.push(frame);
   },
 
-  render: function() {
+  render: function () {
     // Draw the white container for the 4-up grid.
     var r = this.canvas.rect(this.compositeOrigin.x,
                              this.compositeOrigin.y,
                              this.compositeDim.w,
                              this.compositeDim.h);
-    r.attr({'fill': 'white'});
+    r.attr({ 'fill': 'white' });
     this.all.push(r);
 
     this.renderFrameAt(1);
@@ -107,7 +107,7 @@ var PhotoView = Backbone.View.extend({
                               this.compositeOrigin.y,
                               this.compositeDim.w,
                               this.compositeDim.h);
-    $(o.node).attr('class', 'overlay')
+    $(o.node).attr('class', 'overlay');
     this.all.push(o);
     this.overlayImage = o;
 
@@ -120,13 +120,13 @@ var PhotoView = Backbone.View.extend({
     let ret = [];
     ret.push("Size of 'all' set: " + this.all.length);
     ret.push("Size of 'frames' set: " + this.frames.length);
-    ret.push("Composite photo is: " + this.all[0].attr('width') + 'x' + this.all[0].attr('height'));
-    ret.push("Frame photo is: " + this.frameDim.w + 'x' + this.frameDim.h);
+    ret.push('Composite photo is: ' + this.all[0].attr('width') + 'x' + this.all[0].attr('height'));
+    ret.push('Frame photo is: ' + this.frameDim.w + 'x' + this.frameDim.h);
     return ret.join('\n');
   },
 
   data() {
-    return { num_elements: this.all.length }
+    return { num_elements: this.all.length };
   },
 
   /**
@@ -138,20 +138,20 @@ var PhotoView = Backbone.View.extend({
    * @param cb
    *   The callback to be executed when the UI has finished updating and zooming out.
    */
-  updatePhotoSet: function(img_src, idx, cb) {
+  updatePhotoSet: function (img_src, idx, cb) {
     var view = this;
     var imgEl = view.images[idx];
     var frameEl = view.frames[idx];
 
-    imgEl.attr({'src': img_src, 'opacity': 0});
+    imgEl.attr({ 'src': img_src, 'opacity': 0 });
     imgEl.show();
 
     var afterShowPhoto = function () {
       // We've found and revealed the photo, now hide the old black rect and zoom out
       frameEl.hide();
       view.zoomFrame(idx, 'out', cb);
-    }
-    imgEl.animate({'opacity': 1}, 200, afterShowPhoto);
+    };
+    imgEl.animate({ 'opacity': 1 }, 200, afterShowPhoto);
   },
 
   /**
@@ -166,11 +166,11 @@ var PhotoView = Backbone.View.extend({
       this.overlayImage.hide();
       this.all.animate({
         'transform': `t0,0`
-      }, 1000, "<>", cb);
+      }, 1000, '<>', cb);
     } else if (dir === 'out') {
       this.all.animate({
         'transform': `t${this.config.window_width},0"`
-      }, 1000, "<>", cb);
+      }, 1000, '<>', cb);
     }
   },
 
@@ -189,48 +189,48 @@ var PhotoView = Backbone.View.extend({
    * Depends on the presence of the .zoomed object to store zoom info.
    */
   zoomFrame(idx, dir, onfinish) {
-      var view = this;
-      var composite = this.all[idx];
+    var view = this;
+    var composite = this.all[idx];
 
-      var frame = this.frames[idx];
-      var frameX = frame.attr('x');
-      var frameW = frame.attr('width');
-      var frameY = frame.attr('y');
-      var frameH = frame.attr('height');
-      var centerX = frameX + frameW/2;
-      var centerY = frameY + frameH/2;
+    var frame = this.frames[idx];
+    var frameX = frame.attr('x');
+    var frameW = frame.attr('width');
+    var frameY = frame.attr('y');
+    var frameH = frame.attr('height');
+    var centerX = frameX + frameW / 2;
+    var centerY = frameY + frameH / 2;
 
-      var animSpeed = 700;
+    var animSpeed = 700;
 
       // delta to translate to.
-      var dx = this.compositeCenter.x - centerX;
-      var dy = this.compositeCenter.y - centerY;
-      var scaleFactor = this.compositeDim.w / this.frameDim.w;
+    var dx = this.compositeCenter.x - centerX;
+    var dy = this.compositeCenter.y - centerY;
+    var scaleFactor = this.compositeDim.w / this.frameDim.w;
 
-      if (dir === "out" && this.state.zoomed) {
-          scaleFactor = 1;
-          dx = -this.state.zoomed.dx;
-          dy = -this.state.zoomed.dy;
-          view.all.animate({
-              'transform': `s1,1,${this.state.centerX},${this.state.centerY}`,
+    if (dir === 'out' && this.state.zoomed) {
+        scaleFactor = 1;
+        dx = -this.state.zoomed.dx;
+        dy = -this.state.zoomed.dy;
+        view.all.animate({
+            'transform': `s1,1,${this.state.centerX},${this.state.centerY}`,
           }, animSpeed, 'bounce', onfinish);
           // Clear the zoom data.
-          this.state.zoomed = null;
-      } else if (dir !== "out") {
-          view.all.animate({
-              'transform': `t${dx},${dy}`
-          }, animSpeed, '<>', function() {
-              view.all.animate({
-                  'transform': `...s${scaleFactor},${scaleFactor},${centerX},${centerY}`,
-              }, animSpeed, 'bounce', onfinish)
+        this.state.zoomed = null;
+      } else if (dir !== 'out') {
+        view.all.animate({
+            'transform': `t${dx},${dy}`
+          }, animSpeed, '<>', function () {
+            view.all.animate({
+                'transform': `...s${scaleFactor},${scaleFactor},${centerX},${centerY}`,
+              }, animSpeed, 'bounce', onfinish);
           });
           // Store the zoom data for next zoom.
-          this.state.zoomed = {
-              dx: dx,
-              dy: dy,
-              centerX: centerX,
-              centerY: centerY,
-              scaleFactor: scaleFactor
+        this.state.zoomed = {
+            dx: dx,
+            dy: dy,
+            centerX: centerX,
+            centerY: centerY,
+            scaleFactor: scaleFactor
           };
       }
   },
@@ -238,12 +238,12 @@ var PhotoView = Backbone.View.extend({
   /**
    * Reset visibility, location of composite image for next round.
    */
-  slideInNext: function() {
-      this.resetState();
-      this.modalMessage('Next!');
-      this.all.hide();
-      this.all.transform(`t${-this.config.window_width * 2},0`);
-      this.animate('in', function() {
+  slideInNext: function () {
+    this.resetState();
+    this.modalMessage('Next!');
+    this.all.hide();
+    this.all.transform(`t${-this.config.window_width * 2},0`);
+    this.animate('in', function () {
         $('#start-button').fadeIn();
       });
   },
@@ -258,27 +258,27 @@ var PhotoView = Backbone.View.extend({
   /**
    * Faux camera flash
    */
-  flashEffect: function(duration) {
+  flashEffect: function (duration) {
     if (duration === undefined) { duration = 200; }
     var rect = this.canvas.rect(0, 0, this.config.window_width, this.config.window_height);
-    rect.attr({'fill': 'white', 'opacity': 0});
-    rect.animate({'opacity': 1}, duration, ">", function() {
-      rect.animate({'opacity': 0}, duration, "<");
+    rect.attr({ 'fill': 'white', 'opacity': 0 });
+    rect.animate({ 'opacity': 1 }, duration, '>', function () {
+      rect.animate({ 'opacity': 0 }, duration, '<');
       rect.remove();
-    })
+    });
   },
 
-  flashStart: function(duration) {
+  flashStart: function (duration) {
     if (duration === undefined) { duration = 200; }
     this.rect = this.canvas.rect(0, 0, this.config.window_width, this.config.window_height);
-    this.rect.attr({'fill': 'white', 'opacity': 0});
-    this.rect.animate({'opacity': 1}, duration, ">")
+    this.rect.attr({ 'fill': 'white', 'opacity': 0 });
+    this.rect.animate({ 'opacity': 1 }, duration, '>');
   },
 
-  flashEnd: function(duration) {
+  flashEnd: function (duration) {
     if (duration === undefined) { duration = 200; }
     var self = this;
-    this.rect.animate({'opacity': 0}, duration, "<", function() {
+    this.rect.animate({ 'opacity': 0 }, duration, '<', function () {
       self.remove();
     });
   },
@@ -286,41 +286,41 @@ var PhotoView = Backbone.View.extend({
   /**
    * Draws a modal with some text.
    */
-  modalMessage: function(text, persistTime, animateSpeed, cb) {
-      if (animateSpeed === undefined) { var animateSpeed = 200; }
-      if (persistTime === undefined) { var persistTime = 500; }
+  modalMessage: function (text, persistTime, animateSpeed, cb) {
+    if (animateSpeed === undefined) { var animateSpeed = 200; }
+    if (persistTime === undefined) { var persistTime = 500; }
 
-      var sideLength = this.config.window_height * 0.3;
-      var x = (this.config.window_width - sideLength)/2;
-      var y = (this.config.window_height - sideLength)/2;
-      var all = this.canvas.set();
-      var r = this.canvas.rect(x, y,
+    var sideLength = this.config.window_height * 0.3;
+    var x = (this.config.window_width - sideLength) / 2;
+    var y = (this.config.window_height - sideLength) / 2;
+    var all = this.canvas.set();
+    var r = this.canvas.rect(x, y,
           sideLength,
           sideLength,
           15);
-      r.attr({'fill': '#222',
+    r.attr({ 'fill': '#222',
               'fill-opacity': 0.7,
-              'stroke-color': 'white'});
-      all.push(r);
-      var txt = this.canvas.text(x + sideLength/2, y + sideLength/2, text);
-      txt.attr({'fill': 'white',
+              'stroke-color': 'white' });
+    all.push(r);
+    var txt = this.canvas.text(x + sideLength / 2, y + sideLength / 2, text);
+    txt.attr({ 'fill': 'white',
           'font-size': '50',
           'font-weight': 'bold'
       });
-      all.push(txt);
-      all.attr({'opacity': 0});
-      all.animate({
-          'opacity': 1,
-          'scale': '1.5,1.5',
-          'font-size': '70'
+    all.push(txt);
+    all.attr({ 'opacity': 0 });
+    all.animate({
+        'opacity': 1,
+        'scale': '1.5,1.5',
+        'font-size': '70'
       }, animateSpeed, '>');
 
       // Timer to delete self nodes.
-      var t = setTimeout(function(all) {
+    var t = setTimeout(function (all) {
           // Delete nodes
-          txt.remove();
-          r.remove();
-          if (cb) cb();
+        txt.remove();
+        r.remove();
+        if (cb) cb();
       }, persistTime, all);
   },
 
@@ -328,21 +328,21 @@ var PhotoView = Backbone.View.extend({
    * Applies the final image overlay to the composite image.
    * This will usually contain the wedding logo: 24-bit transparent PNG
    */
-  showOverlay: function(animate) {
-      this.overlayImage.show();
-      if (animate) {
+  showOverlay: function (animate) {
+    this.overlayImage.show();
+    if (animate) {
           //this.overlayImage.attr({'opacity':0});
-        this.overlayImage.animate({'opacity':1}, this.config.overlay_delay);
+        this.overlayImage.animate({ 'opacity':1 }, this.config.overlay_delay);
       }
   },
 
   /**
    * Removes the overlay
    */
-  hideOverlay: function(animate) {
+  hideOverlay: function (animate) {
     var view = this;
     if (animate) {
-      this.overlayImage.animate({'opacity':0}, this.config.overlay_delay, function() {
+      this.overlayImage.animate({ 'opacity':0 }, this.config.overlay_delay, function () {
         view.overlayImage.hide();
       });
     } else {
