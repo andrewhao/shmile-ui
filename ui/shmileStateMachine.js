@@ -100,7 +100,7 @@ var ShmileStateMachine = function (photoView, socket, appState, config, buttonVi
         });
       },
       onchangestate: function (e, f, t) {
-        console.log('fsm received event ' + e + ', changing state from ' + f + ' to ' + t);
+        console.log(`fsm received event ${e}, changing state from ${f} to ${t}`);
       }
     }
   });
