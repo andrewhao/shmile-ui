@@ -7,10 +7,9 @@ describe('ButtonView', function() {
 	beforeEach(function() {
 		this.startEl = $('<button id="start-button">Start</button>');
 		$('body').append(this.startEl);
-		this.fsm = {};
 		this.channel = {}
 		_.extend(this.channel, Backbone.Events);
-		this.subject = new ButtonView(this.fsm, this.channel);
+		this.subject = new ButtonView(this.channel);
 	});
 
 	describe('#render', function() {
