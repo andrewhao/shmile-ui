@@ -21,6 +21,10 @@ shmile-ui is integratable as a Bower component in shmile.
 
     $ npm test
 
-## Development mode
+## Development mode with a fake shmile server:
 
     $ webpack-dev-server
+
+Visit http://localhost:8080/public in a browser.
+
+Click "Start" and watch the server start.
