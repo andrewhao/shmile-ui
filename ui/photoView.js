@@ -19,7 +19,7 @@ var PhotoView = Backbone.View.extend({
   render: function() {
     var w = this.config.window_width - this.config.photo_margin;
     var h = this.config.window_height - this.config.photo_margin;
-    this.compositeDim = CameraUtils.scale4x6(w, h);
+    this.compositeDim = CameraUtils.scale4x1(w, h);
     this.compositeOrigin = {
         x: (this.config.window_width - this.compositeDim.w) / 2,
         y: (this.config.window_height - this.compositeDim.h) / 2
@@ -37,12 +37,15 @@ var PhotoView = Backbone.View.extend({
     // Scale the photo padding too
     this.photoBorder = this.compositeDim.w / 50;
 
-    //upper x
+        //upper x
     var frame_x = this.compositeOrigin.x + this.photoBorder;
     var frame_y = this.compositeOrigin.y + this.photoBorder;
+
+    var _frame_w = (this.compositeDim.w - (2*this.photoBorder));
+
     this.frameDim = {
-        w: (this.compositeDim.w - (3*this.photoBorder))/2,
-        h: (this.compositeDim.h - (3*this.photoBorder))/2
+        w: (this.compositeDim.w - (2*this.photoBorder)),
+        h: _frame_w * 4/6 // TODO: Fixed aspect ratio?
     };
     var frame = this.canvas.rect(frame_x, frame_y, this.frameDim.w, this.frameDim.h);
     frame.attr({'fill': 'black'});
@@ -53,36 +56,20 @@ var PhotoView = Backbone.View.extend({
     this.all.push(img);
     this.all.push(frame);
 
-    frame = frame.clone();
-    img = img.clone();
-    frame.translate(this.frameDim.w + this.photoBorder, 0);
-    img.translate(this.frameDim.w + this.photoBorder, 0);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
-
-    frame = frame.clone();
-    img = img.clone();
-    frame.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
-    img.translate(-(this.frameDim.w + this.photoBorder), this.frameDim.h + this.photoBorder);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
-
-    frame = frame.clone();
-    img = img.clone();
-    frame.translate(this.frameDim.w + this.photoBorder, 0);
-    img.translate(this.frameDim.w + this.photoBorder, 0);
-    this.frames.push(frame);
-    this.images.push(img);
-    this.all.push(frame);
-    this.all.push(img);
+    for (var i = 0; i < 3; i++) {
+      frame = frame.clone();
+      img = img.clone();
+      frame.translate(0, this.frameDim.h + this.photoBorder);
+      img.translate(0, this.frameDim.h + this.photoBorder);
+      this.frames.push(frame);
+      this.images.push(img);
+      this.all.push(frame);
+      this.all.push(img);
+    }
 
     // Draw the PNG logo overlay.
     var o = this.canvas.image(
-        '/images/overlay.png',
+        '/images/overlay_david.png',
         this.compositeOrigin.x,
         this.compositeOrigin.y,
         this.compositeDim.w,
@@ -175,12 +162,12 @@ var PhotoView = Backbone.View.extend({
       var centerX = frameX + frameW/2;
       var centerY = frameY + frameH/2;
 
-      var animSpeed = 700;
+      var animSpeed = 1000;
 
       // delta to translate to.
       var dx = this.compositeCenter.x - centerX;
       var dy = this.compositeCenter.y - centerY;
-      var scaleFactor = this.compositeDim.w / this.frameDim.w;
+      var scaleFactor = this.compositeDim.h / this.frameDim.h;
 
       if (dir === "out" && this.state.zoomed) {
           scaleFactor = 1;

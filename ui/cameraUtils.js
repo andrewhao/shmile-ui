@@ -40,3 +40,15 @@ CameraUtils.scale4x6 = function(maxw, maxh) {
         return {w: maxw, h: maxw * 4/6}
     }
 }
+
+CameraUtils.scale4x1 = function(maxw, maxh) {
+    var s0 = 6/4; // width / height
+    var s1 = maxw/maxh;
+
+    // Then the width is longer. Use the shorter side (height)
+    if (s0 <= s1) {
+        return {w: maxh * 4/6 * 0.5, h: maxh};
+    } else {
+        return {w: maxw, h: maxw * 6/4 * 0.5}
+    }
+}
