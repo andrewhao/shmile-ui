@@ -9,6 +9,10 @@ body {
     background: url(/images/bg_linen.png)
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 #viewport {
     width: 100%;
     height: 100%;
