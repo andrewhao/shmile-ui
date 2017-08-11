@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
+// var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 var del = require('del');
@@ -43,7 +43,7 @@ gulp.task('scripts', ['clean'], function() {
     .pipe(concat('shmile-ui.js'))
     .pipe(gulp.dest('build/js'))
     .pipe(sourcemaps.init())
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(sourcemaps.write("../maps"))
     .pipe(rename({extname: ".min.js"}))
     .pipe(gulp.dest('build/js'));
