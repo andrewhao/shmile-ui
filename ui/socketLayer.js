@@ -26,6 +26,7 @@ SocketLayer.prototype.init = function() {
  * Register bindings and callbacks.
  */
 SocketLayer.prototype.register = function(fsm) {
+  console.log("register");
   this.fsm = fsm;
   var self = this;
 

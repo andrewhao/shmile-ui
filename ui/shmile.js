@@ -6,19 +6,28 @@ $(window).ready(function() {
 
   window.io = window.io || undefined;
 
+  var layer = new SocketLayer(window.io, socketProxy)
+  layer.init();
+
   window.p = new PhotoView(window.Config, appState);
   bv = new ButtonView();
 
   var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv)
 
-  bv.fsm = ssm.fsm
+  bv.fsm = ssm.fsm;
 
-  var layer = new SocketLayer(window.io, socketProxy)
-  layer.init();
-  layer.register(ssm.fsm);
+  window.socketProxy = socketProxy;
 
-  window.socketProxy = socketProxy
+  socketProxy.on('template', (template) => {
+    console.log("blah " + template.overlayImage);
+    layer.register(ssm.fsm);
+    bv.render();
+    p.render(template);
 
-  bv.render();
-  p.render();
+    // p.setOverlay(template.overlayImage);
+    // p.setPicturesTotal(template.photosTotal);
+    // p.setLayout(template.photoView);
+
+    ssm.fsm.connected();
+  });
 });

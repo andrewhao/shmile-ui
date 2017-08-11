@@ -42,6 +42,7 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
     ],
     callbacks: {
       onconnected: function() {
+        console.log("onconnected");
         self.photoView.animate('in', function() {
           self.buttonView.fadeIn();
         });
@@ -72,12 +73,13 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
       onphoto_updated: function(e, f, t) {
         self.photoView.flashEnd();
         // We're done with the full set.
-        if (self.appState.current_frame_idx == 3) {
+        var pictures = self.photoView.getPicturesTotal()
+        if (self.appState.current_frame_idx == pictures - 1) {
           self.fsm.finish_set();
         }
         // Move the frame index up to the next frame to update.
         else {
-          self.appState.current_frame_idx = (self.appState.current_frame_idx + 1) % 4
+          self.appState.current_frame_idx = (self.appState.current_frame_idx + 1) % pictures
           self.fsm.continue_partial_set();
         }
       },
