@@ -89,7 +89,7 @@ var PhotoView = Backbone.View.extend({
     // this.all.hide();
     // this.all.translate(-this.config.window_width, 0);
 
-    this.all.hide();
+    // this.all.hide();
     this.all.translate(-this.config.window_width, 0);
   },
 
@@ -138,7 +138,7 @@ var PhotoView = Backbone.View.extend({
    */
   animate: function(dir, cb) {
     if (dir === 'in') {
-      this.all.show();
+      // this.all.show();
       // this.all.show();
       // this.images.hide();
       if (this.overlayImage) {
@@ -228,9 +228,9 @@ var PhotoView = Backbone.View.extend({
   slideInNext: function() {
       this.resetState();
       this.modalMessage('Next!');
-      this.all.hide();
-      this.all.translate(-this.config.window_width * 2, 0);
+      // this.all.hide();
       this.photoViewLayout.removeImages();
+      this.all.translate(-this.config.window_width * 2, 0);
       // this.all.hide();
       // this.all.translate(-this.config.window_width * 2, 0);
       this.animate('in', function() {
