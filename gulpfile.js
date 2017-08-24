@@ -18,7 +18,8 @@ var paths = {
     'ui/buttonView.js',
     'ui/shmile.js',
     'ui/portraitOneByFour.js',
-    'ui/landscapeTwoByTwo.js'
+    'ui/landscapeTwoByTwo.js',
+    'ui/LandscapeOneByThree.js',
   ],
   styles: [
     "css/shmile.css"

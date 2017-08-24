@@ -52,3 +52,19 @@ CameraUtils.scale4x1 = function(maxw, maxh) {
         return {w: maxw, h: maxw * 6/4 * 0.5}
     }
 }
+
+/**
+ * Given a max w and h bounds, return the dimensions
+ * of the largest 3x8 rect that will fit within.
+ */
+CameraUtils.scale3x8 = function(maxw, maxh) {
+    var s0 = 8/3; // width / height
+    var s1 = maxw/maxh;
+
+    // Then the width is longer. Use the shorter side (height)
+    if (s0 <= s1) {
+        return {w: maxh * s0, h: maxh};
+    } else {
+        return {w: maxw, h: maxw * s0}
+    }
+}
