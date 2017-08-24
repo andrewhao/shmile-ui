@@ -136,7 +136,7 @@ PortraitOneByFour.prototype.toString = function() {
    */
   PortraitOneByFour.prototype.zoomFrame = function(idx, dir, state, onfinish) {
       var view = this;
-      var composite = this.all[idx];
+      // var composite = this.all[idx];
 
       var frame = this.frames[idx];
       var frameX = frame.attr('x');
