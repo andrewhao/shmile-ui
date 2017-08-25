@@ -16,6 +16,7 @@ var LandscapeOneByThree = function(config) {
   this.size =  {w: 2000, h: 750};
   this.frameSize = {w: 633.33, h:422.22}
   this.frameSpacing = 50;
+  this.translationTotal = {dx:0, dy:0};
 }
 
 LandscapeOneByThree.prototype.render = function() {
@@ -140,23 +141,27 @@ LandscapeOneByThree.prototype.zoomFrame = function(idx, dir, state, onfinish) {
   // delta to translate to.
   var dx = this.compositeCenter.x - centerX;
   var dy = this.compositeCenter.y - centerY;
-  var scaleFactor = this.compositeDim.h / frameH;
+
 
   if (dir === "out" && state.zoomed) {
-    scaleFactor = 1;
-    dx = -state.zoomed.dx;
-    dy = -state.zoomed.dy;
+    // scaleFactor = 1;
+    view.translationTotal.dx -= state.zoomed.dx;
+    view.translationTotal.dy -= state.zoomed.dy;
     view.all.animate({
       'scale': [1, 1, view.compositeCenter.x, view.compositeCenter.y].join(','),
     }, animSpeed, 'bounce', //onFinish);
     function() {
-
-      view.all.animate({
-        'translation': dx+','+dy
-      }, animSpeed, '<>', onfinish)
+      if (idx == view.totalPictures - 1) {
+        view.all.animate({
+          'translation': view.translationTotal.dx+','+view.translationTotal.dy
+        }, animSpeed, '<>', onfinish)
+      } else {
+        onfinish();
+      }
     });
     return null;
   } else if (dir !== "out") {
+    var scaleFactor = this.compositeDim.h / frameH;
     view.all.animate({
       'translation': dx+','+dy
     }, animSpeed, '<>', function() {
@@ -167,12 +172,32 @@ LandscapeOneByThree.prototype.zoomFrame = function(idx, dir, state, onfinish) {
     // Store the zoom data for next zoom.
     return  {
       dx: dx,
-      dy: dy,
-      scaleFactor: scaleFactor
+      dy: dy
+      // scaleFactor: scaleFactor
     };
   }
 }
 
+LandscapeOneByThree.prototype.calculateOutTranslation = function (idx, state, onfinish) {
+  var view = this;
+  var animSpeed = 1000;
+
+  if (view.shouldRestoreOutState) {
+    view.all.animate({
+      'translation': [-state.dx, -state.dy].join(',')
+    }, animSpeed, '<>', onfinish);
+  } else {
+    view.translationTotal.dx -= state.zoomed.dx;
+    view.translationTotal.dy -= state.zoomed.dy;
+    if (idx == view.totalPictures - 1) {
+      view.all.animate({
+        'translation': view.translationTotal.dx+','+view.translationTotal.dy
+      }, animSpeed, '<>', onfinish);
+    } else {
+      onfinish();
+    }
+  };
+};
 LandscapeOneByThree.prototype.removeImages = function () {
   // this.images.clear();
   // for (var i = 0; i < this.totalPictures; i++) {
@@ -180,6 +205,8 @@ LandscapeOneByThree.prototype.removeImages = function () {
   // }
   this.images.hide();
   this.frames.show();
+  this.translationTotal.dx = 0;
+  this.translationTotal.dy = 0;
 }
 
 LandscapeOneByThree.prototype.createOverlayImage = function(overlayImage) {
