@@ -29,6 +29,14 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
 
   var self = this;
 
+  self.socket.on("printer_enabled" => {
+      self.ssm.show_print_message();
+  });
+  self.socket.on("review_composited" => {
+    setTimeout(function() {
+      self.fsm.next_set()
+    }, self.config.next_delay);
+  });
   this.fsm = StateMachine.create({
     initial: 'loading',
     events: [
@@ -38,7 +46,9 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
       { name: 'photo_updated', from: 'review_photo', to: 'next_photo' },
       { name: 'continue_partial_set', from: 'next_photo', to: 'waiting_for_photo' },
       { name: 'finish_set', from: 'next_photo', to: 'review_composited' },
-      { name: 'next_set', from: 'review_composited', to: 'ready'}
+      { name: 'show_print_message', from: 'next_photo', to: 'print_message' },
+      { name: 'print_set', from: 'print_message', to: 'printing_set'},
+      { name: 'next_set', from: ['review_composited', 'printing_set'], to: 'ready'}
     ],
     callbacks: {
       onconnected: function() {
@@ -86,10 +96,9 @@ var ShmileStateMachine = function(photoView, socket, appState, config, buttonVie
       onenterreview_composited: function(e, f, t) {
         self.socket.emit('composite');
         self.photoView.showOverlay(true);
-        setTimeout(function() {
-          self.fsm.next_set()
-        }, self.config.next_delay);
       },
+      // FIXME: onenter_printing_set
+      // FIXME: onenternext_set
       onleavereview_composited: function(e, f, t) {
         // Clean up
         self.photoView.animate('out');
