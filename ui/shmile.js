@@ -11,10 +11,12 @@ $(window).ready(function() {
 
   window.p = new PhotoView(window.Config, appState);
   bv = new ButtonView();
+  snackbar = new Snackbar(socketProxy);
 
-  var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv)
+  var ssm = new ShmileStateMachine(window.p, socketProxy, appState, window.Config, bv, snackbar)
 
   bv.fsm = ssm.fsm;
+  // snackbar.fsm = ssm.fsm;
 
   window.socketProxy = socketProxy;
 
@@ -22,6 +24,7 @@ $(window).ready(function() {
     console.log("blah " + template.overlayImage);
     layer.register(ssm.fsm);
     bv.render();
+    snackbar.render();
     p.render(template);
 
     // p.setOverlay(template.overlayImage);
@@ -30,4 +33,12 @@ $(window).ready(function() {
 
     ssm.fsm.connected();
   });
+  // socketProxy.on("printer_enabled", () => {
+  //     ssm.fsm.show_print_message();
+  // });
+  // socketProxy.on("review_composited", () => {
+  //   setTimeout(function() {
+  //     ssm.fsm.next_set()
+  //   }, self.config.next_delay);
+  // });
 });

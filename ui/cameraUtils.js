@@ -65,6 +65,6 @@ CameraUtils.scale3x8 = function(maxw, maxh) {
     if (s0 <= s1) {
         return {w: maxh * s0, h: maxh};
     } else {
-        return {w: maxw, h: maxw * s0}
+        return {w: maxw, h: maxw * (1/s0)}
     }
 }

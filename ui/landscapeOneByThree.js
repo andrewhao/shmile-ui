@@ -178,26 +178,10 @@ LandscapeOneByThree.prototype.zoomFrame = function(idx, dir, state, onfinish) {
   }
 }
 
-LandscapeOneByThree.prototype.calculateOutTranslation = function (idx, state, onfinish) {
-  var view = this;
-  var animSpeed = 1000;
+LandscapeOneByThree.prototype.calculateOutTranslation = function (state, cb) {
 
-  if (view.shouldRestoreOutState) {
-    view.all.animate({
-      'translation': [-state.dx, -state.dy].join(',')
-    }, animSpeed, '<>', onfinish);
-  } else {
-    view.translationTotal.dx -= state.zoomed.dx;
-    view.translationTotal.dy -= state.zoomed.dy;
-    if (idx == view.totalPictures - 1) {
-      view.all.animate({
-        'translation': view.translationTotal.dx+','+view.translationTotal.dy
-      }, animSpeed, '<>', onfinish);
-    } else {
-      onfinish();
-    }
-  };
 };
+
 LandscapeOneByThree.prototype.removeImages = function () {
   // this.images.clear();
   // for (var i = 0; i < this.totalPictures; i++) {

@@ -185,9 +185,9 @@ PortraitOneByFour.prototype.toString = function() {
 
 PortraitOneByFour.prototype.removeImages = function () {
   // this.images.clear();
-  for (var i = 0; i < this.totalPictures; i++) {
-    this.images.pop();
-  }
+  // for (var i = 0; i < this.totalPictures; i++) {
+  //   this.images.pop();
+  // }
   this.images.hide();
   this.frames.show();
 }
@@ -204,3 +204,4 @@ PortraitOneByFour.prototype.createOverlayImage = function(overlayImage) {
 // PortraitOneByFour.prototype.set = function() {
 //   return this.paper.set();
 // }
+
